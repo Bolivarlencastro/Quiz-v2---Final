@@ -583,10 +583,11 @@ export class CourseWizardComponent {
     const prompt = `Gere um quiz com 5 perguntas de múltipla escolha com 4 alternativas cada sobre o tópico "${topic.title}". O conteúdo de referência inclui: ${contentTitles}. As perguntas devem ser relevantes para esses conteúdos. Apenas uma alternativa deve ser a correta. Retorne o resultado em um formato JSON que corresponda ao schema fornecido.`;
     
     try {
-        if (!process.env.API_KEY) {
-            throw new Error("API_KEY environment variable not set.");
+        const apiKey = localStorage.getItem('GOOGLE_GENAI_API_KEY') || (window as any).ENV?.API_KEY;
+        if (!apiKey) {
+            throw new Error("API_KEY not configured. Please set up your API key in the environment settings.");
         }
-        const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+        const ai = new GoogleGenAI({apiKey});
 
         const responseSchema = {
             type: Type.OBJECT,

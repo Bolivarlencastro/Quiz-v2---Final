@@ -181,10 +181,11 @@ export class ImageUploadModalComponent {
     this.aiPrompt.set('');
 
     try {
-      if (!process.env.API_KEY) {
-        throw new Error("API_KEY environment variable not set.");
+      const apiKey = localStorage.getItem('GOOGLE_GENAI_API_KEY') || (window as any).ENV?.API_KEY;
+      if (!apiKey) {
+        throw new Error("API_KEY not configured. Please set up your API key in the environment settings.");
       }
-      const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+      const ai = new GoogleGenAI({apiKey});
 
       const referenceImage = this.aiReferenceImage();
         
@@ -252,10 +253,11 @@ export class ImageUploadModalComponent {
     });
 
     try {
-      if (!process.env.API_KEY) {
-        throw new Error("API_KEY environment variable not set.");
+      const apiKey = localStorage.getItem('GOOGLE_GENAI_API_KEY') || (window as any).ENV?.API_KEY;
+      if (!apiKey) {
+        throw new Error("API_KEY not configured. Please set up your API key in the environment settings.");
       }
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({apiKey});
       
       const imageGenerationRequest: any = {
         model: 'imagen-4.0-generate-001',
