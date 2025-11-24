@@ -1,0 +1,88 @@
+<div class="flex h-screen bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+  <!-- Sidebar -->
+  <aside class="w-80 bg-gray-50 dark:bg-gray-900 border-r dark:border-gray-700/60 flex flex-col p-6">
+    <div class="mb-10">
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{ title() }}</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Etapas de criação:</p>
+    </div>
+    <nav class="flex flex-col space-y-2">
+      @for (step of steps(); track step.number) {
+        <button (click)="goToStep(step.number)" class="flex items-center p-4 rounded text-left transition-colors w-full" 
+                [class.bg-gray-200]="currentStep() === step.number" [class.dark:bg-gray-700]="currentStep() === step.number"
+                [class.hover:bg-gray-100]="currentStep() !== step.number" [class.dark:hover:bg-gray-800]="currentStep() !== step.number">
+          <div class="flex items-center justify-center w-8 h-8 rounded-full mr-4" 
+               [class.bg-purple-600]="currentStep() === step.number" 
+               [class.bg-gray-300]="currentStep() !== step.number" [class.dark:bg-gray-600]="currentStep() !== step.number">
+            <span class="font-bold text-white">{{ step.number }}</span>
+          </div>
+          <div>
+            <span class="font-bold" 
+                  [class.text-gray-800]="currentStep() === step.number" [class.dark:text-gray-200]="currentStep() === step.number"
+                  [class.text-gray-600]="currentStep() !== step.number" [class.dark:text-gray-300]="currentStep() !== step.number">{{ step.name }}</span>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ step.description }}</p>
+          </div>
+        </button>
+      }
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <main class="flex-1 overflow-y-auto p-10 bg-white dark:bg-gray-800">
+        <ng-content></ng-content>
+    </main>
+
+    <!-- Footer with Navigation -->
+    <footer class="bg-white dark:bg-gray-900 border-t dark:border-gray-700 p-4 flex justify-between items-center">
+      <!-- Left side: Exit button -->
+      <div>
+        <button (click)="handleExitRequest()" class="font-semibold py-2 px-4 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+          Sair da Criação
+        </button>
+      </div>
+
+      <!-- Right side: Step navigation -->
+      <div class="flex items-center gap-4">
+        @if (currentStep() > 1) {
+          <button (click)="prevStep()" class="font-semibold py-2 px-4 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border border-gray-300 dark:border-gray-600 dark:text-gray-300">Anterior</button>
+        }
+        @if(currentStep() < steps().length) {
+          <button (click)="next()" class="bg-purple-800 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-900 transition-colors">Salvar e avançar</button>
+        } @else {
+           <button (click)="handlePublish()" class="bg-purple-800 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-900 transition-colors">Publicar</button>
+        }
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- Exit Confirmation Modal -->
+@if(showConfirmExitModal()) {
+  <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fade-in">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 m-4 animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="text-center">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/50">
+          <span class="material-symbols-outlined text-3xl text-yellow-600 dark:text-yellow-500">warning</span>
+        </div>
+        <h3 class="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-200">Sair sem Salvar?</h3>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">
+          Você tem alterações não salvas. Se sair agora, todo o seu progresso será perdido.
+        </p>
+      </div>
+      <div class="mt-8 grid grid-cols-2 gap-4">
+        <button (click)="cancelExit()" class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+          Cancelar
+        </button>
+        <button (click)="confirmExit()" class="bg-red-600 text-white font-bold py-2 px-4 rounded-full hover:bg-red-700 transition">
+          Sair Mesmo Assim
+        </button>
+      </div>
+    </div>
+  </div>
+}
+<style>
+  .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+  .animate-scale-up { animation: scaleUp 0.3s ease-out forwards; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>

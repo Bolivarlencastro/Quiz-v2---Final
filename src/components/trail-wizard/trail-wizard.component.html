@@ -1,0 +1,208 @@
+
+
+<app-creation-wizard 
+  title="Criar Trilha"
+  [steps]="steps"
+  [currentStep]="currentStep()"
+  [isDirty]="isDirty()"
+  (stepChange)="handleStepChange($event)"
+  (saveAndNext)="handleSaveAndNext()"
+  (publish)="publishTrail()"
+  (exit)="exit.emit()">
+
+  <!-- Main Content -->
+  @switch (currentStep()) {
+    @case (1) {
+      <!-- Step 1: Basic Information -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Informações Básicas</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Preencha os campos com todas as informações da trilha.</p>
+      <div class="space-y-6">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome da Trilha *</label>
+          <input type="text" id="name" maxlength="200" [ngModel]="trail().name" (ngModelChange)="updateField('name', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+          <p class="text-right text-xs text-gray-500 dark:text-gray-400 mt-1">{{ trail().name.length }}/200</p>
+        </div>
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Descrição *</label>
+          <textarea id="description" rows="4" maxlength="250" [ngModel]="trail().description" (ngModelChange)="updateField('description', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200"></textarea>
+          <p class="text-right text-xs text-gray-500 dark:text-gray-400 mt-1">{{ trail().description.length }}/250</p>
+        </div>
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <label for="trailType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Trilha *</label>
+                <select id="trailType" [ngModel]="trail().trailType" (ngModelChange)="updateField('trailType', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+                  <option>Técnico</option>
+                  <option>Comportamental</option>
+                  <option>Liderança</option>
+                </select>
+            </div>
+            <div>
+                <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Idioma *</label>
+                <select id="language" [ngModel]="trail().language" (ngModelChange)="updateField('language', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+                  <option value="pt-BR">Português (BR)</option>
+                  <option value="en-US">Inglês (US)</option>
+                </select>
+            </div>
+        </div>
+      </div>
+    }
+    @case (2) {
+      <!-- Step 2: Images -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Imagens</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Escolha as imagens para o banner e para o card da trilha.</p>
+      <div>
+        <div class="border-b border-gray-200 dark:border-gray-700">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button (click)="imageTab.set('banner')" [class.border-purple-500]="imageTab() === 'banner'" [class.dark:border-purple-400]="imageTab() === 'banner'" [class.text-purple-600]="imageTab() === 'banner'" [class.dark:text-purple-400]="imageTab() === 'banner'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Banner da Trilha</button>
+                <button (click)="imageTab.set('card')" [class.border-purple-500]="imageTab() === 'card'" [class.dark:border-purple-400]="imageTab() === 'card'" [class.text-purple-600]="imageTab() === 'card'" [class.dark:text-purple-400]="imageTab() === 'card'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Imagem do Cartão</button>
+            </nav>
+        </div>
+        <div class="mt-6">
+          @if(imageTab() === 'banner') {
+            <label for="banner-upload" class="relative block w-full aspect-[3/1] border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50 dark:bg-gray-700/50">
+               @if (bannerPreview()) {
+                <img [src]="bannerPreview()" alt="Banner preview" class="w-full h-full object-cover rounded-lg">
+              } @else {
+                <div class="flex flex-col items-center justify-center h-full">
+                  <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500">image</span>
+                  <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 font-semibold">Selecione ou arraste uma imagem</p>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Proporção recomendada: 3:1 (ex: 1920x640)</p>
+                </div>
+              }
+              <input id="banner-upload" type="file" class="sr-only" accept="image/*" (change)="onFileSelected($event, 'banner')">
+            </label>
+          }
+          @if(imageTab() === 'card') {
+            <label for="card-upload" class="relative block w-full max-w-xl aspect-[16/9] border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50 dark:bg-gray-700/50">
+               @if (cardPreview()) {
+                <img [src]="cardPreview()" alt="Card preview" class="w-full h-full object-cover rounded-lg">
+              } @else {
+                <div class="flex flex-col items-center justify-center h-full">
+                  <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500">image</span>
+                  <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 font-semibold">Selecione ou arraste uma imagem</p>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Proporção recomendada: 16:9 (ex: 1920x1080)</p>
+                </div>
+              }
+              <input id="card-upload" type="file" class="sr-only" accept="image/*" (change)="onFileSelected($event, 'card')">
+            </label>
+          }
+        </div>
+      </div>
+    }
+    @case (3) {
+      <!-- Step 3: Settings -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Configurações</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Ative ou desative funções para essa trilha.</p>
+
+      <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+              <button (click)="settingsTab.set('settings')" [class.border-purple-500]="settingsTab() === 'settings'" [class.dark:border-purple-400]="settingsTab() === 'settings'" [class.text-purple-600]="settingsTab() === 'settings'" [class.dark:text-purple-400]="settingsTab() === 'settings'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Configurações</button>
+          </nav>
+      </div>
+
+       @switch (settingsTab()) {
+        @case('settings') {
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-700/50 border dark:border-gray-600 rounded-lg">
+              <label for="isActive" class="font-medium text-gray-800 dark:text-gray-200">Trilha Ativa</label>
+              <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="isActive" class="sr-only peer" [ngModel]="trail().isActive" (ngModelChange)="updateField('isActive', $event)">
+                  <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-purple-500"></div>
+              </label>
+            </div>
+             <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-700/50 border dark:border-gray-600 rounded-lg">
+              <label for="hasCertificate" class="font-medium text-gray-800 dark:text-gray-200">Oferece Certificado</label>
+              <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="hasCertificate" class="sr-only peer" [ngModel]="trail().hasCertificate" (ngModelChange)="updateField('hasCertificate', $event)">
+                  <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-purple-500"></div>
+              </label>
+            </div>
+             <div>
+                <label for="expirationDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Data de Expiração (Opcional)</label>
+                <input type="date" id="expirationDate" [ngModel]="trail().expirationDate" (ngModelChange)="updateField('expirationDate', $event)" class="mt-1 block w-full max-w-sm px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+            </div>
+          </div>
+        }
+      }
+    }
+    @case (4) {
+      <!-- Step 4: Content -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Conteúdo</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Busque e organize as missões e pulses que farão parte da sua trilha.</p>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+        <!-- Left: Search & Add -->
+        <div class="flex flex-col">
+          <h3 class="font-bold text-lg mb-4">Buscar Conteúdos</h3>
+          <div class="relative mb-4">
+            <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar por missões ou pulses..." class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+          </div>
+          <div class="flex-1 overflow-y-auto border dark:border-gray-700 rounded-lg p-2 space-y-2 bg-gray-50 dark:bg-gray-900/50">
+            @for (item of searchResults(); track item.id) {
+              <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+                <div class="flex items-center">
+                  <span class="material-symbols-outlined mr-3" [class.text-blue-500]="item.type === 'mission'" [class.text-green-500]="item.type === 'pulse'">
+                    {{ item.type === 'mission' ? 'flag' : 'bolt' }}
+                  </span>
+                  <div>
+                    <p class="font-semibold">{{ item.title }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ item.duration }}</p>
+                  </div>
+                </div>
+                <button (click)="addContent(item)" class="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 p-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                  <span class="material-symbols-outlined text-base">add_circle</span> Adicionar
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right: Trail Structure -->
+        <div class="flex flex-col">
+          <h3 class="font-bold text-lg mb-4">Conteúdo da Trilha</h3>
+          <div class="flex-1 border-2 border-dashed dark:border-gray-700 rounded-lg p-4 space-y-2 bg-gray-50 dark:bg-gray-900/50 min-h-[300px]" (dragover)="onDragOver($event)" (drop)="onDrop($event, trail().content.length)" (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
+            @for (item of trail().content; track item.id; let i = $index) {
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-gray-700 border dark:border-gray-600 shadow-sm cursor-grab" draggable="true" (dragstart)="onDragStart($event, item)" (dragend)="onDragEnd($event)" (drop)="onDrop($event, i)">
+                <div class="flex items-center">
+                  <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 mr-2 p-1">drag_handle</span>
+                  <span class="material-symbols-outlined mr-3" [class.text-blue-500]="item.type === 'mission'" [class.text-green-500]="item.type === 'pulse'">
+                    {{ item.type === 'mission' ? 'flag' : 'bolt' }}
+                  </span>
+                  <p class="font-semibold">{{ item.title }}</p>
+                </div>
+                <button (click)="removeContent(item.id)" class="text-red-500 hover:text-red-700 p-1 rounded-full">
+                  <span class="material-symbols-outlined">remove_circle_outline</span>
+                </button>
+              </div>
+            }
+            @if (trail().content.length === 0) {
+              <div class="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400">
+                <span class="material-symbols-outlined text-5xl">add_to_photos</span>
+                <p class="mt-2">Adicione conteúdos da lista à esquerda.</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+    @case (5) {
+      <!-- Step 5: Finalize -->
+      <div class="flex flex-col items-center justify-center h-full text-center">
+         <div class="relative mb-4">
+            <span class="material-symbols-outlined text-9xl text-green-500">task_alt</span>
+         </div>
+         <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Tudo Pronto!</h2>
+         <p class="text-gray-600 dark:text-gray-400 max-w-md mb-8">Revise as informações e clique em "Publicar Trilha" para finalizar a criação.</p>
+         <button (click)="publishTrail()" class="bg-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-purple-700 transition">Publicar Trilha</button>
+      </div>
+    }
+  }
+</app-creation-wizard>
+
+<!-- Toast Notifications -->
+@if(showPublishToast()) {
+  <div class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-lg flex items-center z-50">
+    <span class="material-symbols-outlined mr-2">check_circle</span>
+    <span>Trilha publicada com sucesso!</span>
+  </div>
+}

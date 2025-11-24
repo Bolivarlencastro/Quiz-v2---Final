@@ -1,0 +1,102 @@
+@if (data(); as storyMapData) {
+  <div class="fixed inset-0 bg-black/80 z-[100] flex flex-col p-4 animate-fadeIn" role="dialog" aria-modal="true">
+    <!-- Header -->
+    <header class="flex-shrink-0 bg-white dark:bg-gray-800 rounded-t-lg p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+      <div class="flex-1 min-w-0">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white truncate">
+          Story Mapping: <span class="font-normal text-gray-700 dark:text-gray-300">{{ storyMapData.epic }}</span>
+        </h2>
+      </div>
+      <div class="flex items-center gap-2 sm:gap-4">
+        <!-- Version Filter -->
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">filter_alt</span>
+          <select [ngModel]="selectedVersion()" (ngModelChange)="selectedVersion.set($event)" class="w-full pl-9 pr-8 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-transparent focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer">
+            <option value="all">Todas as Versões</option>
+            @for (v of availableVersions(); track v) {
+              <option [value]="v">{{ v }}</option>
+            }
+          </select>
+          <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">expand_more</span>
+        </div>
+        <span class="text-sm text-gray-500 dark:text-gray-400 hidden md:block">Pressione 'S' para fechar</span>
+        <button (click)="close.emit()" class="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="Close Story Mapping">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </header>
+    
+    <!-- Scrollable Content Area -->
+    <main class="flex-1 bg-gray-100 dark:bg-gray-900 rounded-b-lg overflow-auto">
+      <div class="inline-block min-w-full p-6 sm:p-8 align-top">
+        <div class="flex items-start gap-4 pb-4">
+          <!-- Activities -->
+          @for (activity of storyMapData.activities; track activity.activity) {
+            <div class="flex flex-col gap-4 w-72 flex-shrink-0">
+              <div class="p-3 bg-white dark:bg-gray-700 rounded-md shadow-md text-center sticky top-0 z-10 h-28 flex flex-col justify-center">
+                <h3 class="font-bold text-gray-900 dark:text-white">{{ activity.activity }}</h3>
+                @if (activity.subActivity) {
+                  <p class="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">{{ activity.subActivity }}</p>
+                }
+              </div>
+              
+              <!-- Versions -->
+              @for (version of getFilteredVersions(activity.versions); track version.name) {
+                <div class="flex flex-col gap-3">
+                  <div class="font-semibold text-purple-600 dark:text-purple-400 text-sm uppercase tracking-wider pl-1">{{ version.name }}</div>
+                  
+                  <!-- Stories -->
+                  @for (story of version.stories; track story.title) {
+                    <div class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700/50">
+                      <p class="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-2">{{ story.title }}</p>
+                      <ol class="list-none space-y-1.5 pl-0">
+                        @for (detail of story.details; track detail.text; let detailIndex = $index) {
+                          <li class="text-xs">
+                            <div class="flex items-start">
+                              <span class="material-symbols-outlined text-base mr-2 flex-shrink-0 relative top-px" [class.text-green-600]="detail.checked" [class.dark:text-green-500]="detail.checked" [class.text-gray-400]="!detail.checked" [class.dark:text-gray-500]="!detail.checked">
+                                {{ detail.checked ? 'check_box' : 'check_box_outline_blank' }}
+                              </span>
+                              <span class="flex-1 text-gray-600 dark:text-gray-400">
+                                <span class="font-medium text-gray-500 dark:text-gray-500 mr-1.5">{{ detailIndex + 1 }}.</span>
+                                {{ detail.text }}
+                              </span>
+                            </div>
+                            @if (detail.links && detail.links.length > 0) {
+                              <div class="pl-6 mt-1.5 flex flex-col items-start gap-1">
+                                @for (link of detail.links; track link.url) {
+                                  @if (link.type === 'internal') {
+                                    <button (click)="internalLinkClick.emit(link.url)" class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors group">
+                                      <span class="material-symbols-outlined text-base text-gray-400 dark:text-gray-500 group-hover:text-purple-500 dark:group-hover:text-purple-400">{{ getLinkIcon(link.type) }}</span>
+                                      <span class="text-xs group-hover:underline">{{ link.text }}</span>
+                                    </button>
+                                  } @else {
+                                    <a [href]="link.url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors group">
+                                      <span class="material-symbols-outlined text-base text-gray-400 dark:text-gray-500 group-hover:text-purple-500 dark:group-hover:text-purple-400">{{ getLinkIcon(link.type) }}</span>
+                                      <span class="text-xs group-hover:underline">{{ link.text }}</span>
+                                    </a>
+                                  }
+                                }
+                              </div>
+                            }
+                          </li>
+                        }
+                      </ol>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </main>
+    <style>
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      .animate-fadeIn { animation: fadeIn 0.15s ease-out forwards; }
+    </style>
+  </div>
+} @else {
+  <div class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 animate-fadeIn">
+    <p class="text-white">Carregando Story Map...</p>
+  </div>
+}

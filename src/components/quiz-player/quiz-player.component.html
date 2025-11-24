@@ -1,0 +1,132 @@
+<div class="w-full h-full flex flex-col bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-2xl">
+
+  @switch (quizState()) {
+    @case ('intro') {
+      <div class="flex flex-col items-center justify-center text-center h-full p-6 animate-fade-in">
+        <span class="material-symbols-outlined text-7xl text-purple-500 dark:text-purple-400">
+            {{ quizData().quizType === 'survey' ? 'poll' : 'quiz' }}
+        </span>
+        <h1 class="text-3xl font-bold mt-4">{{ quizData().name }}</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-2 max-w-lg">{{ quizData().description }}</p>
+        <div class="mt-6 text-gray-500 dark:text-gray-400 text-sm space-y-2">
+            <p><strong>Perguntas:</strong> {{ questions().length }}</p>
+            @if(quizData().quizType === 'evaluative' && quizData().config?.maxTimeMinutes) {
+                <p><strong>Tempo Limite:</strong> {{ quizData().config?.maxTimeMinutes }} minutos</p>
+            }
+        </div>
+        <button (click)="startQuiz()" class="mt-8 bg-purple-600 text-white font-bold py-3 px-8 rounded-full hover:bg-purple-700 transition">
+          {{ quizData().quizType === 'survey' ? 'Começar Pesquisa' : 'Começar Quiz' }}
+        </button>
+      </div>
+    }
+
+    @case ('playing') {
+      <div class="flex flex-col h-full animate-fade-in">
+        @if (currentQuestion(); as question) {
+          
+          <!-- Content (scrollable) -->
+          <div class="flex-1 overflow-y-auto hide-scrollbar px-6 pt-6">
+            <div class="py-4"> <!-- This inner div provides vertical spacing for content -->
+              <!-- Question Content -->
+              <div>
+                  @if(question.imageUrl && question.imagePosition === 'before') {
+                     <img [src]="question.imageUrl" alt="Imagem da questão" class="max-w-full h-auto rounded-lg mb-4 mx-auto">
+                  }
+                <div class="prose dark:prose-invert max-w-none text-lg leading-relaxed" [innerHTML]="question.questionText | safeHtml"></div>
+                 @if(question.imageUrl && question.imagePosition === 'after') {
+                     <img [src]="question.imageUrl" alt="Imagem da questão" class="max-w-full h-auto rounded-lg mt-4 mx-auto">
+                  }
+              </div>
+
+              <!-- Alternatives / Open Text -->
+              @switch (question.questionType) {
+                @case('multipleChoice') {
+                    <div class="mt-6 space-y-3">
+                        @for (alt of question.alternatives; track $index) {
+                        <button (click)="selectAnswer($index)"
+                                [disabled]="isReviewing()"
+                                class="w-full flex items-start text-left p-4 border-2 rounded-full transition-all"
+                                [class]="getAlternativeClass(question, $index)">
+                            <div class="font-bold mr-4 shrink-0">{{ getAlternativeLetter($index) }}.</div>
+                            <div [innerHTML]="alt | safeHtml"></div>
+                        </button>
+                        }
+                    </div>
+                }
+                @case('openText') {
+                    <div class="mt-6">
+                        <textarea 
+                            [ngModel]="openTextAnswer()"
+                            (ngModelChange)="openTextAnswer.set($event)"
+                            rows="6" 
+                            class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                            placeholder="Digite sua resposta aqui...">
+                        </textarea>
+                    </div>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- Footer (fixed) -->
+          <footer class="shrink-0 px-6 pb-6 pt-4 border-t dark:border-gray-700">
+             <div class="flex justify-end">
+                @if (quizData().quizType === 'evaluative' && isReviewing()) {
+                  <button (click)="nextQuestion()" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-700 transition">
+                    Próxima
+                  </button>
+                } @else {
+                  <button (click)="confirmAnswer()" [disabled]="isConfirmDisabled()" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-700 transition disabled:bg-purple-300 disabled:cursor-not-allowed">
+                    @if (quizData().quizType === 'survey') {
+                        {{ isLastQuestion() ? 'Finalizar' : 'Próximo' }}
+                    } @else {
+                        Confirmar
+                    }
+                  </button>
+                }
+             </div>
+          </footer>
+        }
+      </div>
+    }
+
+    @case ('finished') {
+        @if (quizData().quizType === 'survey') {
+            <div class="flex flex-col items-center justify-center text-center h-full p-6 animate-fade-in">
+                <span class="material-symbols-outlined text-7xl text-green-500">task_alt</span>
+                <h1 class="text-3xl font-bold mt-4">Obrigado por sua participação!</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2 max-w-lg">Sua opinião é muito importante para nós e nos ajudará a melhorar.</p>
+                @if (!isInlinePlayer()) {
+                    <div class="mt-8 flex gap-4">
+                        <button (click)="exitPreview.emit()" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-700 transition">
+                            Voltar para edição
+                        </button>
+                    </div>
+                }
+            </div>
+        } @else {
+            <div class="flex flex-col items-center justify-center text-center h-full p-6 animate-fade-in">
+                <h1 class="text-4xl font-bold mb-2">Quiz Finalizado!</h1>
+                <p class="text-gray-600 dark:text-gray-400">Veja seu resultado abaixo.</p>
+                
+                <div class="my-8">
+                    <p class="text-xl">Você acertou</p>
+                    <p class="text-6xl font-extrabold text-purple-600 dark:text-purple-400">{{ correctAnswers() }} / {{ questions().length }}</p>
+                    <p class="text-2xl font-semibold mt-2">{{ score() }}%</p>
+                </div>
+                
+                @if (!isInlinePlayer()) {
+                    <div class="mt-8 flex gap-4">
+                        <button (click)="startQuiz()" class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-2 px-6 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                            Tentar Novamente
+                        </button>
+                        <button (click)="exitPreview.emit()" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-700 transition">
+                            Voltar para edição
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    }
+  }
+</div>

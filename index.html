@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Criação de Cursos Konquest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <style>
+    /* Default styling for Material Symbols */
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24
+    }
+
+    /* Custom scrollbar for a more modern look */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f3f4f6; /* gray-100 */
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #9ca3af; /* gray-400 */
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #6b7280; /* gray-500 */
+    }
+
+    /* Dark scrollbar */
+    :is(.dark ::-webkit-scrollbar-track) {
+      background: #1f2937; /* gray-800 */
+    }
+    :is(.dark ::-webkit-scrollbar-thumb) {
+      background: #4b5563; /* gray-600 */
+    }
+    :is(.dark ::-webkit-scrollbar-thumb:hover) {
+      background: #374151; /* gray-700 */
+    }
+
+    /* Tooltip styles */
+    .app-tooltip-container {
+      position: fixed;
+      z-index: 99999; /* Use a very high z-index to ensure it's on top of all modals */
+      pointer-events: none;
+      animation: tooltip-fade-in 0.15s ease-out;
+    }
+
+    .app-tooltip {
+      background-color: rgba(17, 24, 39, 0.9); /* gray-900 */
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.875rem; /* text-sm */
+      line-height: 1.4;
+      max-width: 250px;
+      position: relative;
+    }
+    
+    .app-tooltip::after {
+      content: '';
+      position: absolute;
+      border-width: 6px;
+      border-style: solid;
+      left: 50%;
+      margin-left: -6px;
+    }
+
+    .app-tooltip.top::after {
+      top: 100%;
+      border-color: rgba(17, 24, 39, 0.9) transparent transparent transparent;
+    }
+
+    .app-tooltip.bottom::after {
+      bottom: 100%;
+      border-color: transparent transparent rgba(17, 24, 39, 0.9) transparent;
+    }
+
+    @keyframes tooltip-fade-in {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Highlight animation for story map links */
+    .highlight-feature {
+      animation: highlight-pulse 2s ease-out;
+      border-radius: 0.75rem; /* rounded-xl */
+      box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); /* purple-500 */
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes highlight-pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 15px rgba(168, 85, 247, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
+      }
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/compiler": "https://next.esm.sh/@angular/compiler@^20.1.6-0?external=rxjs",
+    "@angular/common": "https://next.esm.sh/@angular/common@^20.1.6-0?external=rxjs",
+    "@angular/common/http": "https://next.esm.sh/@angular/common@^20.1.6-0/http?external=rxjs",
+    "@angular/core": "https://next.esm.sh/@angular/core@^20.1.6-0?external=rxjs",
+    "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^20.1.6-0?external=rxjs",
+    "@angular/forms": "https://next.esm.sh/@angular/forms@^20.1.6-0?external=rxjs",
+    "@google/genai": "https://esm.run/@google/genai",
+    "react/jsx-runtime": "https://next.esm.sh/react@^19.2.0/jsx-runtime?external=rxjs",
+    "react": "https://next.esm.sh/react@^19.2.0?external=rxjs"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 antialiased">
+  <app-root></app-root>
+</body>
+</html>

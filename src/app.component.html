@@ -1,0 +1,32 @@
+@switch(viewState()) {
+  @case('courseWizard') {
+    @if(courseData(); as course) {
+      <app-course-wizard 
+        [initialCourseData]="course" 
+        [startAtStep]="wizardStartStep()" 
+        [highlightRequest]="highlightRequest()"
+        (exit)="exitWizard()" 
+        (preview)="handleCoursePreview($event)" />
+    }
+  }
+  @case('coursePlayer') {
+    @if(courseData(); as course) {
+      <app-course-player 
+        [course]="course" 
+        [isFullScreen]="isFullScreen()" 
+        [theme]="theme()"
+        (exit)="exitCoursePlayer()"
+        (toggleFullScreen)="toggleFullScreen()"
+        (toggleTheme)="toggleTheme()" />
+    }
+  }
+}
+
+<!-- Story Mapping Modal -->
+@if (showStoryMap()) {
+  <app-story-mapping-modal 
+    [data]="storyMapData()" 
+    (close)="toggleStoryMap()"
+    (internalLinkClick)="handleInternalLink($event)"
+  />
+}

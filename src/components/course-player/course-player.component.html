@@ -1,0 +1,295 @@
+<div class="h-screen w-full bg-[#f7f7f7] dark:bg-gray-900 p-2 flex flex-col" [class.fixed]="isFullScreen()" [class.inset-0]="isFullScreen()" [class.z-50]="isFullScreen()">
+
+  <!-- Top Header -->
+  <header class="flex-shrink-0 w-full h-16 flex items-center justify-between gap-4">
+    <!-- Left side: Menu button and Title -->
+    <div class="flex items-center gap-2 flex-1 min-w-0">
+      <div class="w-20 flex-shrink-0 flex items-center justify-center">
+        <button (click)="toggleEntireSidebar()" class="w-14 h-14 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+      </div>
+      <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-200 truncate">{{ displayedCourse().name }}</h1>
+    </div>
+
+    <!-- Right side: Navigation and Progress -->
+    <div class="flex-shrink-0 flex items-center gap-4">
+      <button (click)="prevContent()" [disabled]="activeContentIndex() === 0" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <span class="text-sm font-medium text-gray-600 dark:text-gray-400 text-center whitespace-nowrap">Conteúdo: {{ activeContentIndex() + 1 }} de {{ allContentItems().length }}</span>
+      
+      @if(isContentLocked()) {
+        <div class="flex items-center gap-2 bg-white dark:bg-slate-800 rounded-full py-1 pl-1 pr-3 border border-gray-200 dark:border-slate-700 shadow-sm">
+            <div class="relative w-8 h-8 flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 32 32">
+                    <circle class="text-gray-200 dark:text-gray-600" stroke-width="3" stroke="currentColor" fill="transparent" r="14" cx="16" cy="16" />
+                    <circle class="text-purple-600 dark:text-purple-400 progress-ring"
+                            stroke-width="3"
+                            [attr.stroke-dasharray]="circumference"
+                            [attr.stroke-dashoffset]="circumference - lockdownProgress() / 100 * circumference"
+                            stroke-linecap="round"
+                            stroke="currentColor"
+                            fill="transparent"
+                            r="14" cx="16" cy="16" />
+                </svg>
+                <span class="absolute material-symbols-outlined text-sm text-gray-400 dark:text-gray-500">
+                    @if (activeContent()?.type === 'quiz') {
+                        quiz
+                    } @else {
+                        pan_tool
+                    }
+                </span>
+            </div>
+            @if(activeContent()?.type === 'quiz') {
+                <span class="text-sm font-semibold text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                  @if (quizProgressText()) {
+                    Pergunta: {{ quizProgressText() }}
+                  }
+                </span>
+            } @else if (lockdownTimer() > 0) {
+                <span class="text-sm font-semibold text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ lockdownTimer() }} seg.</span>
+            }
+        </div>
+      } @else {
+        <button (click)="nextContent()" [disabled]="activeContentIndex() === allContentItems().length - 1" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      }
+    </div>
+  </header>
+
+  <!-- Main content area -->
+  <div class="flex-1 flex gap-2 overflow-hidden">
+    <!-- Primary + Secondary Sidebar container -->
+    <div class="flex-shrink-0 flex gap-2 transition-all duration-300" 
+         [class.-ml-[384px]]="isEntireSidebarCollapsed()"
+         [class.w-0]="isEntireSidebarCollapsed()">
+      
+      <!-- Primary Icon Sidebar -->
+      <aside class="flex-shrink-0 w-20 bg-white dark:bg-gray-800 rounded-2xl flex flex-col items-center py-4">
+        <!-- Index toggle button -->
+        <button (click)="toggleIndex()" 
+                class="w-14 h-14 flex items-center justify-center rounded-full transition-colors mb-4"
+                [class.bg-purple-100]="!isIndexCollapsed()"
+                [class.dark:bg-purple-900/40]="!isIndexCollapsed()"
+                [class.text-purple-600]="!isIndexCollapsed()"
+                [class.dark:text-purple-400]="!isIndexCollapsed()"
+                [class.hover:bg-gray-100]="isIndexCollapsed()"
+                [class.dark:hover:bg-gray-700]="isIndexCollapsed()">
+          <span class="material-symbols-outlined">list</span>
+        </button>
+        
+        <div class="flex-grow"></div>
+        
+        <!-- Bottom Icons -->
+        <div class="flex flex-col gap-2">
+          <button class="w-14 h-14 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <span class="material-symbols-outlined">help_outline</span>
+          </button>
+          <button (click)="toggleFullScreen.emit()" class="w-14 h-14 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <span class="material-symbols-outlined">{{ isFullScreen() ? 'fullscreen_exit' : 'fullscreen' }}</span>
+          </button>
+          <button (click)="toggleTheme.emit()" class="w-14 h-14 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <span class="material-symbols-outlined">
+              @if (theme() === 'dark') {
+                light_mode
+              } @else {
+                dark_mode
+              }
+            </span>
+          </button>
+          <button (click)="showExitConfirmModal.set(true)" class="w-14 h-14 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <span class="material-symbols-outlined">logout</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Secondary Index Menu -->
+      <nav class="flex-shrink-0 w-[300px] flex flex-col transition-all duration-300"
+           [class.-ml-[308px]]="isIndexCollapsed()"
+           [class.opacity-0]="isIndexCollapsed()"
+           [class.pointer-events-none]="isIndexCollapsed()">
+        <div class="overflow-y-auto space-y-2 hide-scrollbar">
+          @for (topic of displayedCourse().topics; track topic.id; let topicIndex = $index) {
+            <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+              <!-- Topic Header -->
+              <button (click)="toggleTopicExpansion(topic.id)" class="w-full flex items-center justify-between p-4 text-left">
+                <div class="flex items-center gap-4 min-w-0">
+                  <span class="flex-shrink-0 w-7 h-7 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-full font-bold text-sm text-gray-600 dark:text-gray-300">{{ topicIndex + 1 }}</span>
+                  <span class="font-semibold text-gray-800 dark:text-gray-200 truncate">{{ topic.title }}</span>
+                </div>
+                <span class="material-symbols-outlined text-gray-500 dark:text-gray-400 transition-transform" [class.rotate-180]="!isTopicExpanded(topic.id)">expand_more</span>
+              </button>
+              
+              <!-- Content List -->
+              @if (isTopicExpanded(topic.id)) {
+                <div class="pl-8 pr-4 pb-2">
+                  <div class="border-l-2 border-gray-200 dark:border-gray-700">
+                    @for (content of topic.contents; track content.id) {
+                      @let accessible = isAccessible(content.id);
+                      @let completed = isCompleted(content.id);
+                      <a (click)="selectContent(content)" 
+                         class="flex items-center justify-between pl-5 py-3 -ml-px border-l-2 transition-all duration-200 cursor-pointer"
+                         [class.opacity-40]="!accessible && !completed"
+                         [class.border-purple-600]="baseActiveContent()?.id === content.id"
+                         [class.font-semibold]="baseActiveContent()?.id === content.id"
+                         [class.border-transparent]="baseActiveContent()?.id !== content.id"
+                         [class.hover:text-gray-900]="baseActiveContent()?.id !== content.id && accessible"
+                         [class.dark:hover:text-white]="baseActiveContent()?.id !== content.id && accessible">
+                        
+                        <div class="flex items-center gap-3 min-w-0" 
+                            [class.text-purple-600]="baseActiveContent()?.id === content.id"
+                            [class.dark:text-purple-400]="baseActiveContent()?.id === content.id"
+                            [class.text-gray-600]="baseActiveContent()?.id !== content.id"
+                            [class.dark:text-gray-300]="baseActiveContent()?.id !== content.id">
+                          <span class="material-symbols-outlined text-base w-5 text-center">{{ getContentIcon(content.type) }}</span>
+                          <span class="truncate text-sm">{{ content.title }}</span>
+                        </div>
+                        
+                        <div class="w-6 flex-shrink-0">
+                          @if (completed) {
+                            <span class="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                          }
+                        </div>
+                      </a>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </nav>
+    </div>
+
+    <!-- Main Content Display -->
+    <main class="flex-1 bg-white dark:bg-gray-900 rounded-2xl overflow-y-auto flex p-4 relative hide-scrollbar"
+          [class.items-center]="activeContent()?.type !== 'video' && activeContent()?.type !== 'quiz'"
+          [class.justify-center]="activeContent()?.type !== 'video' && activeContent()?.type !== 'quiz'"
+          [class.items-start]="activeContent()?.type === 'quiz'">
+      @if (activeContent(); as content) {
+        @switch (content.type) {
+          @case ('video') {
+            @if (safeVideoUrl(); as url) {
+              <div class="w-full h-full">
+                <iframe [src]="url" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full rounded-lg"></iframe>
+              </div>
+            } @else {
+              <div class="text-center text-gray-500 dark:text-gray-400">
+                <span class="material-symbols-outlined text-5xl">videocam_off</span>
+                <p class="mt-2">Preview de vídeo não disponível.</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500">Verifique se o link do YouTube é válido.</p>
+              </div>
+            }
+          }
+          @case('quiz') {
+            @if (content.quizData; as quiz) {
+              <app-quiz-player 
+                class="w-full" 
+                [quizData]="quiz" 
+                [isInlinePlayer]="true" 
+                (quizCompleted)="handleQuizCompletion()"
+                (progressUpdate)="handleQuizProgress($event)"
+                (progressTextUpdate)="handleQuizProgressText($event)" />
+            }
+          }
+          @default {
+            <div class="text-center text-gray-700 dark:text-gray-200">
+              <h1 class="text-2xl font-bold">{{ activeTopicIndex() + 1 }}.{{ activeContentIndexInTopic() + 1 }} {{ content.title }}</h1>
+            </div>
+          }
+        }
+      } @else {
+        <div class="text-center text-gray-500 dark:text-gray-400">
+          <p>Selecione um conteúdo para começar.</p>
+        </div>
+      }
+
+       <!-- DEBUGGER FAB & MENU -->
+      <div class="absolute bottom-4 right-4 z-30">
+        <div class="relative">
+          <button (click)="toggleDebugMenu()" class="w-14 h-14 flex items-center justify-center bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-900 transition-all duration-200 transform hover:scale-110 opacity-0 hover:opacity-100">
+            <span class="material-symbols-outlined transition-transform duration-300" [class.rotate-45]="isDebugMenuOpen()">science</span>
+          </button>
+
+          @if (isDebugMenuOpen()) {
+            <div (click)="$event.stopPropagation()" class="absolute bottom-full right-0 mb-4 w-72 bg-white dark:bg-gray-700 rounded-lg shadow-2xl p-4 border dark:border-gray-600 animate-fade-in-up">
+              <div class="flex justify-between items-center mb-2">
+                <h4 class="font-bold text-gray-800 dark:text-gray-200">Debug de Estrutura</h4>
+              </div>
+              <div class="space-y-1">
+                 @for (option of debugMenuOptions.structure; track option.key) {
+                  <label class="flex items-center gap-3 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm">
+                    <input type="checkbox"
+                          [checked]="debugOptions()[option.key]"
+                          (change)="toggleDebugOption(option.key, $event)"
+                          class="h-4 w-4 rounded border-gray-300 dark:border-gray-500 dark:bg-gray-600 text-indigo-600 focus:ring-indigo-500 shrink-0 cursor-pointer">
+                    <span class="text-gray-700 dark:text-gray-300 select-none">{{ option.label }}</span>
+                  </label>
+                }
+              </div>
+              <div class="border-t dark:border-gray-600 my-2"></div>
+              <div class="flex justify-between items-center mb-2">
+                <h4 class="font-bold text-gray-800 dark:text-gray-200">Debug de Quiz</h4>
+              </div>
+              <div class="space-y-1 max-h-64 overflow-y-auto pr-2">
+                @for (option of debugMenuOptions.quiz; track option.key) {
+                  <label class="flex items-center gap-3 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm">
+                    <input type="checkbox"
+                          [checked]="debugOptions()[option.key]"
+                          (change)="toggleDebugOption(option.key, $event)"
+                          class="h-4 w-4 rounded border-gray-300 dark:border-gray-500 dark:bg-gray-600 text-indigo-600 focus:ring-indigo-500 shrink-0 cursor-pointer">
+                    <span class="text-gray-700 dark:text-gray-300 select-none">{{ option.label }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+             <!-- Backdrop -->
+            <div class="fixed inset-0 z-[-1]" (click)="isDebugMenuOpen.set(false)"></div>
+          }
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Exit Confirmation Modal -->
+@if(showExitConfirmModal()) {
+  <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fade-in">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 m-4 text-center">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/50">
+        <span class="material-symbols-outlined text-3xl text-yellow-600 dark:text-yellow-400">warning</span>
+      </div>
+      <h3 class="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-200">Abandonar o curso?</h3>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">
+        Tem certeza que deseja sair? Seu progresso não será salvo.
+      </p>
+      <div class="mt-8 grid grid-cols-2 gap-4">
+        <button (click)="cancelExit()" class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+          Cancelar
+        </button>
+        <button (click)="confirmExit()" class="bg-red-600 text-white font-bold py-2 px-4 rounded-full hover:bg-red-700 transition">
+          Sair Mesmo Assim
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Content Blocked Modal -->
+@if(showContentBlockedModal()) {
+  <div class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 animate-backdrop-fade-in" (click)="showContentBlockedModal.set(false)">
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl w-full max-w-md p-8 m-4 text-center animate-scale-up" (click)="$event.stopPropagation()">
+      <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Conteúdo Bloqueado</h3>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">
+        Este conteúdo está bloqueado. Para acessá-lo, você precisa primeiro concluir os conteúdos anteriores. Finalize a visualização das etapas anteriores para desbloquear este conteúdo.
+      </p>
+      <div class="mt-8">
+        <button (click)="showContentBlockedModal.set(false)" class="bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold py-2 px-6 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition shadow-sm border dark:border-gray-600">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+}

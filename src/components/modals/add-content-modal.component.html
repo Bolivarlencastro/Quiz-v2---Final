@@ -1,0 +1,57 @@
+<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fade-in" (click)="close.emit()">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl p-8 m-4 animate-scale-up" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200">Adicionar Novo Conteúdo</h2>
+      <button (click)="close.emit()" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
+        <span class="material-symbols-outlined text-3xl">close</span>
+      </button>
+    </div>
+
+    <div class="space-y-6">
+      <!-- Upload File -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b dark:border-gray-700 pb-2">Fazer Upload de um Arquivo</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button (click)="selectContent('video')" class="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer transition-colors text-gray-700 dark:text-gray-300 font-medium"><span class="material-symbols-outlined text-4xl mb-2">movie</span> Vídeo</button>
+          <button (click)="selectContent('audio')" class="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer transition-colors text-gray-700 dark:text-gray-300 font-medium"><span class="material-symbols-outlined text-4xl mb-2">headphones</span> Áudio/Podcast</button>
+          <button (click)="selectContent('image')" class="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer transition-colors text-gray-700 dark:text-gray-300 font-medium"><span class="material-symbols-outlined text-4xl mb-2">image</span> Imagem</button>
+          <button (click)="selectContent('document')" class="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer transition-colors text-gray-700 dark:text-gray-300 font-medium"><span class="material-symbols-outlined text-4xl mb-2">description</span> Documento</button>
+        </div>
+      </div>
+
+      <!-- Embed from Web -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b dark:border-gray-700 pb-2">Incorporar da Web</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button (click)="selectContent('web')" class="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer transition-colors text-gray-700 dark:text-gray-300 font-medium"><span class="material-symbols-outlined text-4xl mb-2">smart_display</span> YouTube/Vimeo</button>
+          <button (click)="selectContent('web')" class="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer transition-colors text-gray-700 dark:text-gray-300 font-medium"><span class="material-symbols-outlined text-4xl mb-2">cloud</span> Google Drive</button>
+          <button (click)="selectContent('web')" class="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer transition-colors text-gray-700 dark:text-gray-300 font-medium"><span class="material-symbols-outlined text-4xl mb-2">podcasts</span> SoundCloud</button>
+          <button (click)="selectContent('web')" class="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer transition-colors text-gray-700 dark:text-gray-300 font-medium"><span class="material-symbols-outlined text-4xl mb-2">link</span> Link Genérico</button>
+        </div>
+      </div>
+      
+      <!-- Interactive & Assessment -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b dark:border-gray-700 pb-2">Conteúdo Interativo</h3>
+          <div class="grid grid-cols-1 gap-4">
+            <button (click)="selectContent('scorm')" class="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer transition-colors text-gray-700 dark:text-gray-300 font-medium"><span class="material-symbols-outlined text-4xl mb-2">extension</span> SCORM/Genially/H5P</button>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b dark:border-gray-700 pb-2">Avaliação</h3>
+          <div class="grid grid-cols-1 gap-4">
+            <button (click)="selectContent('quiz')" class="flex flex-col items-center justify-center text-center p-4 border dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer transition-colors text-gray-700 dark:text-gray-300 font-medium"><span class="material-symbols-outlined text-4xl mb-2">quiz</span> Quiz Konquest</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<style>
+  .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+  .animate-scale-up { animation: scaleUp 0.3s ease-out forwards; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>

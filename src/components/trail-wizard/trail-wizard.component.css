@@ -1,0 +1,9 @@
+.dragging {
+  opacity: 0.5;
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.drag-over {
+    @apply bg-purple-100 dark:bg-purple-900/50 border-purple-400;
+}

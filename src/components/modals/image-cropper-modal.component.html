@@ -1,0 +1,84 @@
+<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] animate-fade-in" (click)="close.emit()">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col m-4 animate-scale-up" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <header class="p-4 border-b dark:border-gray-700 flex justify-between items-center shrink-0">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Ajustar Imagem</h2>
+      <button (click)="close.emit()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 overflow-hidden">
+      <div #imageContainer class="w-full h-full relative" 
+           (mousedown)="$event.preventDefault()" 
+           (touchstart)="$event.preventDefault()">
+        
+        <!-- Base image -->
+        <img #imageToCrop 
+             [src]="imageUrl()" 
+             alt="Imagem para recortar"
+             class="absolute select-none pointer-events-none"
+             [class.opacity-100]="imageLoaded()"
+             [class.opacity-0]="!imageLoaded()"
+             [style.width.px]="imageDisplay().width"
+             [style.height.px]="imageDisplay().height"
+             [style.transform]="'translate(' + imageDisplay().x + 'px, ' + imageDisplay().y + 'px)'"
+             draggable="false"
+             oncontextmenu="return false;">
+
+        <!-- Cropper UI -->
+        @if (imageLoaded()) {
+          <div class="absolute"
+               [style.width.px]="imageDisplay().width"
+               [style.height.px]="imageDisplay().height"
+               [style.transform]="'translate(' + imageDisplay().x + 'px, ' + imageDisplay().y + 'px)'">
+            
+            <div 
+                 class="absolute cursor-move select-none"
+                 [style.transform]="'translate(' + cropBox().x + 'px, ' + cropBox().y + 'px)'"
+                 [style.width.px]="cropBox().width"
+                 [style.height.px]="cropBox().height"
+                 (mousedown)="startMove($event)"
+                 (touchstart)="startMove($event)">
+
+                <!-- Overlay to darken outside area -->
+                <div class="overlay"></div>
+                <!-- Border -->
+                <div class="absolute inset-0 border-2 border-white/70 box-border pointer-events-none"></div>
+
+                <!-- Handles -->
+                @for (handle of [
+                    { id: 'top-left', cursor: 'nwse-resize' },
+                    { id: 'top-middle', cursor: 'ns-resize' },
+                    { id: 'top-right', cursor: 'nesw-resize' },
+                    { id: 'middle-left', cursor: 'ew-resize' },
+                    { id: 'middle-right', cursor: 'ew-resize' },
+                    { id: 'bottom-left', cursor: 'nesw-resize' },
+                    { id: 'bottom-middle', cursor: 'ns-resize' },
+                    { id: 'bottom-right', cursor: 'nwse-resize' }
+                ]; track handle.id) {
+                    <div class="handle" 
+                         [class]="handle.id" 
+                         [style.cursor]="handle.cursor"
+                         (mousedown)="startResize($event, handle.id)"
+                         (touchstart)="startResize($event, handle.id)">
+                    </div>
+                }
+            </div>
+          </div>
+        } @else {
+           <div class="absolute inset-0 flex items-center justify-center">
+                <p class="text-gray-500">Carregando imagem...</p>
+           </div>
+        }
+      </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="p-4 bg-gray-50 dark:bg-gray-800/50 border-t dark:border-gray-700 flex justify-end items-center gap-4 shrink-0">
+      <button (click)="close.emit()" class="font-semibold py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition">Cancelar</button>
+      <button (click)="confirmCrop()" [disabled]="!imageLoaded()" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-purple-700 transition disabled:opacity-50">Confirmar Recorte</button>
+    </footer>
+  </div>
+</div>

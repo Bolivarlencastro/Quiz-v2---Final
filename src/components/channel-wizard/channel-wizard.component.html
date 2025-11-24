@@ -1,0 +1,101 @@
+<app-creation-wizard 
+  title="Criar Canal"
+  [steps]="steps"
+  [currentStep]="currentStep()"
+  [isDirty]="isDirty()"
+  (stepChange)="handleStepChange($event)"
+  (saveAndNext)="handleSaveAndNext()"
+  (publish)="publishChannel()"
+  (exit)="exit.emit()">
+
+  <!-- Main Content -->
+  @switch (currentStep()) {
+    @case (1) {
+      <!-- Step 1: Basic Information -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Informações Básicas</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Preencha os campos com as informações do canal.</p>
+      <div class="space-y-6 max-w-4xl">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome do Canal *</label>
+          <input type="text" id="name" maxlength="200" [ngModel]="channel().name" (ngModelChange)="updateField('name', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+           <p class="text-right text-xs text-gray-500 dark:text-gray-400 mt-1">{{ channel().name.length }}/200</p>
+        </div>
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Descrição *</label>
+          <textarea id="description" rows="4" [ngModel]="channel().description" (ngModelChange)="updateField('description', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200"></textarea>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoria *</label>
+            <select id="category" [ngModel]="channel().category" (ngModelChange)="updateField('category', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+              <option>Geral</option>
+              <option>Desenvolvimento Pessoal</option>
+              <option>Notícias da Empresa</option>
+              <option>Tecnologia</option>
+            </select>
+          </div>
+          <div>
+            <label for="channelType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Canal *</label>
+            <select id="channelType" [ngModel]="channel().channelType" (ngModelChange)="updateField('channelType', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+              <option>Educação</option>
+              <option>Notícias</option>
+              <option>Dicas</option>
+            </select>
+          </div>
+          <div>
+            <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Idioma *</label>
+            <select id="language" [ngModel]="channel().language" (ngModelChange)="updateField('language', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+              <option value="pt-BR">Português (BR)</option>
+              <option value="en-US">Inglês (US)</option>
+            </select>
+          </div>
+        </div>
+         <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-700/50 border dark:border-gray-600 rounded-lg">
+            <label for="isActive" class="font-medium text-gray-800 dark:text-gray-200">Canal Ativo</label>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="isActive" class="sr-only peer" [ngModel]="channel().isActive" (ngModelChange)="updateField('isActive', $event)">
+                <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-purple-500"></div>
+            </label>
+         </div>
+      </div>
+    }
+    @case (2) {
+      <!-- Step 2: Cover Image -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Imagem de Capa</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Escolha uma imagem de capa para o seu canal.</p>
+      <div>
+        <label for="cover-upload" class="relative block w-72 h-72 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50 dark:bg-gray-700/50">
+            @if (coverImagePreview()) {
+            <img [src]="coverImagePreview()" alt="Cover image preview" class="w-full h-full object-cover rounded-lg">
+            } @else {
+            <div class="flex flex-col items-center justify-center h-full">
+                <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500">image</span>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 font-semibold">Selecione ou arraste uma imagem</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Proporção 1:1 (ex: 300x300)</p>
+            </div>
+            }
+            <input id="cover-upload" type="file" class="sr-only" accept="image/jpeg, image/png, image/webp" (change)="onFileSelected($event)">
+        </label>
+      </div>
+    }
+    @case (3) {
+      <!-- Step 3: Finalize -->
+      <div class="flex flex-col items-center justify-center h-full text-center">
+         <div class="relative mb-4">
+            <span class="material-symbols-outlined text-9xl text-green-500">task_alt</span>
+         </div>
+         <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Tudo Pronto!</h2>
+         <p class="text-gray-600 dark:text-gray-400 max-w-md mb-8">Revise as informações e clique em "Publicar Canal" para finalizar.</p>
+         <button (click)="publishChannel()" class="bg-purple-600 text-white font-bold py-3 px-8 rounded-full hover:bg-purple-700 transition">Publicar Canal</button>
+      </div>
+    }
+  }
+</app-creation-wizard>
+
+<!-- Toast Notifications -->
+@if(showPublishToast()) {
+  <div class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-lg flex items-center z-50">
+    <span class="material-symbols-outlined mr-2">check_circle</span>
+    <span>Canal publicado com sucesso!</span>
+  </div>
+}

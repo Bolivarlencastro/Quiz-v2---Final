@@ -1,0 +1,169 @@
+<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] animate-fade-in" (click)="close.emit()">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-5xl h-[80vh] flex flex-col m-4 animate-scale-up" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <header class="p-4 border-b dark:border-gray-700 flex justify-between items-center shrink-0">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Selecionar Imagem para o {{ imageType() === 'banner' ? 'Banner' : 'Card' }}</h2>
+      <button (click)="close.emit()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-gray-50 dark:bg-gray-800/50 border-r dark:border-gray-700 p-4 space-y-2">
+        @for(source of [
+          { id: 'computer', icon: 'computer', label: 'Meu Computador' },
+          { id: 'ai', icon: 'auto_awesome', label: 'Gerar com IA' },
+          { id: 'pexels', icon: 'photo_camera', label: 'Banco de Imagens' },
+          { id: 'freepik', icon: 'collections', label: 'Freepik' },
+          { id: 'drive', icon: 'cloud', label: 'Google Drive' }
+        ]; track source.id) {
+          <button (click)="selectSource(source.id)" class="w-full flex items-center gap-3 p-3 rounded-lg text-left text-sm font-medium transition-colors"
+                  [class.bg-purple-100]="activeSource() === source.id" [class.dark:bg-purple-900/40]="activeSource() === source.id"
+                  [class.text-purple-700]="activeSource() === source.id" [class.dark:text-purple-400]="activeSource() === source.id"
+                  [class.text-gray-600]="activeSource() !== source.id" [class.dark:text-gray-300]="activeSource() !== source.id"
+                  [class.hover:bg-gray-200]="activeSource() !== source.id" [class.dark:hover:bg-gray-700]="activeSource() !== source.id">
+            <span class="material-symbols-outlined">{{ source.icon }}</span>
+            <span>{{ source.label }}</span>
+          </button>
+        }
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 flex flex-col overflow-hidden">
+        @switch(activeSource()) {
+          @case('computer') {
+            <div class="p-6 h-full flex flex-col">
+              <label 
+                  for="computer-upload"
+                  class="flex-1 w-full flex flex-col items-center justify-center px-6 py-10 border-2 border-dashed rounded-md cursor-pointer transition-colors"
+                  [class.border-purple-500]="draggingOver()" [class.bg-purple-50]="draggingOver()" [class.dark:bg-purple-900/20]="draggingOver()"
+                  [class.border-gray-300]="!draggingOver()" [class.dark:border-gray-600]="!draggingOver()"
+                  (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+                <span class="material-symbols-outlined text-5xl text-gray-400 dark:text-gray-500">upload_file</span>
+                <p class="mt-2 text-lg text-gray-600 dark:text-gray-300 font-semibold">Arraste e solte o arquivo aqui</p>
+                <p class="text-gray-500 dark:text-gray-400">ou</p>
+                <span class="mt-2 text-sm text-purple-600 dark:text-purple-400 font-bold">Selecione o arquivo</span>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Proporção recomendada: {{ imageType() === 'banner' ? '3:1' : '9:16' }}</p>
+              </label>
+              <input id="computer-upload" type="file" class="sr-only" accept="image/*" (change)="onFileSelected($event)">
+            </div>
+          }
+          @case('pexels') {
+            <div class="p-6 flex flex-col h-full">
+              <div class="flex-shrink-0 mb-4 relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                <input type="text" [(ngModel)]="bankSearchTerm" (keyup.enter)="searchBank()" [placeholder]="'Buscar imagens em ' + activeSource() + '...'" class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
+              </div>
+              <div class="flex-1 overflow-y-auto">
+                @if(isLoading()) { <p class="text-center text-gray-500">Carregando...</p> }
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  @for(image of bankImages(); track image) {
+                    <div class="aspect-w-4 aspect-h-3 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer group" (click)="selectBankImage(image)">
+                      <img [src]="image" class="w-full h-full object-cover transition-transform group-hover:scale-105">
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+          @case('freepik') {
+            <div class="p-6 flex flex-col h-full">
+              <div class="flex-shrink-0 mb-4 relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                <input type="text" [(ngModel)]="bankSearchTerm" (keyup.enter)="searchBank()" [placeholder]="'Buscar imagens em ' + activeSource() + '...'" class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
+              </div>
+              <div class="flex-1 overflow-y-auto">
+                @if(isLoading()) { <p class="text-center text-gray-500">Carregando...</p> }
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  @for(image of bankImages(); track image) {
+                    <div class="aspect-w-4 aspect-h-3 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer group" (click)="selectBankImage(image)">
+                      <img [src]="image" class="w-full h-full object-cover transition-transform group-hover:scale-105">
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+          @case('ai') {
+            <div class="p-6 flex flex-col h-full overflow-hidden">
+                <div class="flex-1 overflow-y-auto pr-2 space-y-4">
+                  @if (aiChatHistory().length === 0) {
+                    <div class="h-full flex flex-col items-center justify-center text-center text-gray-500">
+                      <span class="material-symbols-outlined text-6xl">auto_awesome</span>
+                      <p class="mt-2 font-semibold">Gere imagens com IA</p>
+                      <p class="text-sm">Descreva a imagem que você quer criar no campo abaixo.</p>
+                    </div>
+                  }
+                  @for(entry of aiChatHistory(); track entry.timestamp) {
+                    <div class="flex flex-col items-end">
+                       <div class="bg-purple-500 text-white p-3 rounded-lg max-w-lg mb-2">
+                         <p>{{ entry.prompt }}</p>
+                         <time class="text-xs text-purple-200 mt-1">{{ entry.timestamp | date:'shortTime' }}</time>
+                       </div>
+                    </div>
+                     @if (entry.isLoading) {
+                      <div class="flex justify-start">
+                        <div class="bg-gray-200 dark:bg-gray-700 p-3 rounded-lg animate-pulse">Carregando...</div>
+                      </div>
+                     }
+                     @if (entry.error) {
+                        <div class="flex justify-start">
+                          <div class="bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 p-3 rounded-lg flex items-start gap-2">
+                            <span class="material-symbols-outlined text-base mt-0.5">error</span>
+                            <div>
+                                <p>{{ entry.error }}</p>
+                                <button (click)="regenerateImages(entry)" class="font-semibold underline mt-1">Tentar Novamente</button>
+                            </div>
+                          </div>
+                        </div>
+                     }
+                     @if(entry.images.length > 0) {
+                        <div class="flex justify-start">
+                           <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                <div class="grid grid-cols-2 gap-2">
+                                    @for(image of entry.images; track image) {
+                                        <img [src]="image" (click)="selectBankImage(image)" class="w-48 h-auto rounded-md cursor-pointer hover:ring-2 hover:ring-purple-500">
+                                    }
+                                </div>
+                           </div>
+                        </div>
+                     }
+                  }
+                </div>
+                <!-- AI Input Footer -->
+                <div class="flex-shrink-0 pt-4 border-t dark:border-gray-700">
+                  <div class="relative bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <textarea [(ngModel)]="aiPrompt" (keydown)="handleKeydown($event)" (input)="adjustTextareaHeight($event)" rows="1" placeholder="Ex: Um robô andando de skate vermelho" class="w-full bg-transparent p-3 pr-28 resize-none border-none focus:ring-0 dark:text-gray-200 placeholder:text-gray-500"></textarea>
+                    <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
+                      <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-600" (click)="generateImage()" [disabled]="isLoading() || !aiPrompt().trim()">
+                         @if (isLoading()) {
+                            <div class="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                         } @else {
+                            <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">send</span>
+                         }
+                      </button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          }
+          @default {
+            <div class="h-full flex items-center justify-center text-gray-500">
+              <div class="text-center">
+                <span class="material-symbols-outlined text-5xl">build</span>
+                <p class="mt-2">Funcionalidade em construção.</p>
+              </div>
+            </div>
+          }
+        }
+      </main>
+    </div>
+  </div>
+</div>
+<style>
+  .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+  .animate-scale-up { animation: scaleUp 0.3s ease-out forwards; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>

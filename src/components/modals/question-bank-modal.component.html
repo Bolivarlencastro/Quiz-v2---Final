@@ -1,0 +1,60 @@
+<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] animate-fade-in" (click)="close.emit()">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl h-[80vh] flex flex-col m-4 animate-scale-up" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <header class="p-6 border-b dark:border-gray-700 flex justify-between items-center shrink-0">
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Adicionar do Banco de Questões</h2>
+      <button (click)="close.emit()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </header>
+
+    <!-- Search -->
+    <div class="p-6 shrink-0 border-b dark:border-gray-700">
+        <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+            <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar por texto da questão..." class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+    </div>
+
+    <!-- Content -->
+    <main class="flex-1 overflow-y-auto p-6 space-y-3">
+        @for(question of filteredQuestions(); track question.id) {
+            <label [for]="'q-bank-' + question.id" 
+                   class="flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-colors"
+                   [class.bg-purple-50]="isSelected(question.id)"
+                   [class.dark:bg-purple-900/20]="isSelected(question.id)"
+                   [class.border-purple-300]="isSelected(question.id)"
+                   [class.dark:border-purple-600]="isSelected(question.id)"
+                   [class.border-gray-200]="!isSelected(question.id)"
+                   [class.dark:border-gray-700]="!isSelected(question.id)"
+                   [class.hover:bg-gray-50]="!isSelected(question.id)"
+                   [class.dark:hover:bg-gray-700/50]="!isSelected(question.id)"
+            >
+                <input type="checkbox" [id]="'q-bank-' + question.id" [checked]="isSelected(question.id)" (change)="toggleSelection(question.id)" class="mt-1 h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 shrink-0">
+                <div class="flex-1">
+                    <p class="font-semibold text-gray-800 dark:text-gray-200">{{ stripHtml(question.questionText) }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Resposta Correta: {{ question.alternatives[question.correctAnswerIndex] }}
+                    </p>
+                </div>
+            </label>
+        } @empty {
+            <p class="text-center text-gray-500 dark:text-gray-400 py-8">Nenhuma questão encontrada.</p>
+        }
+    </main>
+
+    <!-- Footer -->
+    <footer class="p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex justify-end items-center gap-4 shrink-0">
+      <button (click)="close.emit()" class="font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">Cancelar</button>
+      <button (click)="addSelectedQuestions()" [disabled]="selectedQuestionIds().size === 0" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-700 disabled:bg-purple-300 dark:disabled:bg-purple-800 disabled:cursor-not-allowed transition">
+        Adicionar {{ selectedQuestionIds().size > 0 ? selectedQuestionIds().size : '' }} Questões
+      </button>
+    </footer>
+  </div>
+</div>
+<style>
+  .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+  .animate-scale-up { animation: scaleUp 0.3s ease-out forwards; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>

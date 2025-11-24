@@ -1,0 +1,254 @@
+
+
+<app-creation-wizard 
+  title="Criar Evento"
+  [steps]="steps"
+  [currentStep]="currentStep()"
+  [isDirty]="isDirty()"
+  (stepChange)="handleStepChange($event)"
+  (saveAndNext)="handleSaveAndNext()"
+  (publish)="publishEvent()"
+  (exit)="exit.emit()">
+
+  <!-- Main Content -->
+  @switch (currentStep()) {
+    @case (1) {
+      <!-- Step 1: Basic Information -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Informações Básicas</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Preencha os campos com todas as informações do evento.</p>
+      <div class="space-y-6">
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome do Evento *</label>
+            <input type="text" id="name" maxlength="200" [ngModel]="event().name" (ngModelChange)="updateField('name', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+          </div>
+          <div>
+            <label for="code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Código interno</label>
+            <input type="text" id="code" maxlength="30" [ngModel]="event().internalCode" (ngModelChange)="updateField('internalCode', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+          </div>
+        </div>
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoria *</label>
+          <input type="text" id="category" [ngModel]="event().category" (ngModelChange)="updateField('category', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+        </div>
+        <div class="grid grid-cols-3 gap-6">
+          <div>
+            <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Idioma *</label>
+            <select id="language" [ngModel]="event().language" (ngModelChange)="updateField('language', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+              <option value="pt-BR">Português (BR)</option>
+              <option value="en-US">Inglês (US)</option>
+            </select>
+          </div>
+          <div>
+            <label for="missionType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Missão *</label>
+            <select id="missionType" [ngModel]="event().missionType" (ngModelChange)="updateField('missionType', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+              <option value="presencial">Evento Presencial</option>
+              <option value="online">Evento Online (Live)</option>
+            </select>
+          </div>
+          <div>
+            <label for="evaluationType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Avaliação *</label>
+            <select id="evaluationType" [ngModel]="event().evaluationType" (ngModelChange)="updateField('evaluationType', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+              <option value="eval1">Avaliação 1</option>
+              <option value="eval2">Avaliação 2</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Descrição *</label>
+          <textarea id="description" rows="4" [ngModel]="event().description" (ngModelChange)="updateField('description', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200"></textarea>
+        </div>
+      </div>
+    }
+    @case (2) {
+      <!-- Step 2: Images -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Imagens</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Escolha as imagens para o banner e para o card do evento.</p>
+       <div>
+        <div class="border-b border-gray-200 dark:border-gray-700">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button (click)="imageTab.set('banner')" [class.border-purple-500]="imageTab() === 'banner'" [class.dark:border-purple-400]="imageTab() === 'banner'" [class.text-purple-600]="imageTab() === 'banner'" [class.dark:text-purple-400]="imageTab() === 'banner'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Banner do Evento</button>
+                <button (click)="imageTab.set('card')" [class.border-purple-500]="imageTab() === 'card'" [class.dark:border-purple-400]="imageTab() === 'card'" [class.text-purple-600]="imageTab() === 'card'" [class.dark:text-purple-400]="imageTab() === 'card'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Imagem do Cartão</button>
+            </nav>
+        </div>
+        <div class="mt-6">
+          @if(imageTab() === 'banner') {
+            <label for="banner-upload" class="relative block w-full aspect-[3/1] border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50 dark:bg-gray-700/50">
+               @if (bannerPreview()) {
+                <img [src]="bannerPreview()" alt="Banner preview" class="w-full h-full object-cover rounded-lg">
+              } @else {
+                <div class="flex flex-col items-center justify-center h-full">
+                  <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500">image</span>
+                  <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 font-semibold">Selecione ou arraste uma imagem</p>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Proporção recomendada: 3:1 (ex: 1920x640)</p>
+                </div>
+              }
+              <input id="banner-upload" type="file" class="sr-only" accept="image/*" (change)="onFileSelected($event, 'banner')">
+            </label>
+          }
+          @if(imageTab() === 'card') {
+            <label for="card-upload" class="relative block w-full max-w-xl aspect-[16/9] border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50 dark:bg-gray-700/50">
+               @if (cardPreview()) {
+                <img [src]="cardPreview()" alt="Card preview" class="w-full h-full object-cover rounded-lg">
+              } @else {
+                <div class="flex flex-col items-center justify-center h-full">
+                  <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500">image</span>
+                  <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 font-semibold">Selecione ou arraste uma imagem</p>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Proporção recomendada: 16:9 (ex: 1920x1080)</p>
+                </div>
+              }
+              <input id="card-upload" type="file" class="sr-only" accept="image/*" (change)="onFileSelected($event, 'card')">
+            </label>
+          }
+        </div>
+      </div>
+    }
+    @case (3) {
+       <!-- Step 3: Settings -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Configurações</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Defina as configurações gerais do evento.</p>
+
+      <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+              <button (click)="settingsTab.set('settings')" [class.border-purple-500]="settingsTab() === 'settings'" [class.dark:border-purple-400]="settingsTab() === 'settings'" [class.text-purple-600]="settingsTab() === 'settings'" [class.dark:text-purple-400]="settingsTab() === 'settings'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Gerais</button>
+              <button (click)="settingsTab.set('groups')" [class.border-purple-500]="settingsTab() === 'groups'" [class.dark:border-purple-400]="settingsTab() === 'groups'" [class.text-purple-600]="settingsTab() === 'groups'" [class.dark:text-purple-400]="settingsTab() === 'groups'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Grupos</button>
+              <button (click)="settingsTab.set('contributors')" [class.border-purple-500]="settingsTab() === 'contributors'" [class.dark:border-purple-400]="settingsTab() === 'contributors'" [class.text-purple-600]="settingsTab() === 'contributors'" [class.dark:text-purple-400]="settingsTab() === 'contributors'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Contribuidores</button>
+          </nav>
+      </div>
+
+       @switch (settingsTab()) {
+        @case('settings') {
+           <div class="space-y-4">
+              <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-700/50 border dark:border-gray-600 rounded-lg">
+                <label for="isActive" class="font-medium text-gray-800 dark:text-gray-200">Evento Ativo</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="isActive" class="sr-only peer" [ngModel]="event().isActive" (ngModelChange)="updateField('isActive', $event)">
+                    <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-purple-500"></div>
+                </label>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-700/50 border dark:border-gray-600 rounded-lg">
+                <label for="isEvaluationRequired" class="font-medium text-gray-800 dark:text-gray-200">Avaliação Obrigatória</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="isEvaluationRequired" class="sr-only peer" [ngModel]="event().isEvaluationRequired" (ngModelChange)="updateField('isEvaluationRequired', $event)">
+                    <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-purple-500"></div>
+                </label>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                 <div>
+                    <label for="minimumPerformance" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Performance Mínima (%)</label>
+                    <input type="number" id="minimumPerformance" [ngModel]="event().minimumPerformance" (ngModelChange)="updateField('minimumPerformance', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm">
+                 </div>
+                 <div>
+                    <label for="completionGoalDays" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Duração da Meta (dias)</label>
+                    <input type="number" id="completionGoalDays" [ngModel]="event().completionGoalDays" (ngModelChange)="updateField('completionGoalDays', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm">
+                 </div>
+              </div>
+               <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-700/50 border dark:border-gray-600 rounded-lg">
+                <label for="hasCustomCertificate" class="font-medium text-gray-800 dark:text-gray-200">Certificado Personalizado</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="hasCustomCertificate" class="sr-only peer" [ngModel]="event().hasCustomCertificate" (ngModelChange)="updateField('hasCustomCertificate', $event)">
+                    <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-purple-500"></div>
+                </label>
+              </div>
+           </div>
+        }
+        @case('groups') {
+             <p class="text-gray-600 dark:text-gray-400">Adicione grupos para este evento.</p>
+        }
+         @case('contributors') {
+             <p class="text-gray-600 dark:text-gray-400">Adicione contribuidores para este evento.</p>
+        }
+      }
+    }
+    @case (4) {
+      <!-- Step 4: Event Details -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Detalhes do Evento</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Configure as informações específicas para este evento.</p>
+      
+      <div class="space-y-8">
+        <!-- Event Specifics -->
+        <div class="p-4 border dark:border-gray-700 rounded-lg">
+          <h3 class="font-bold text-lg mb-4">Local e Vagas</h3>
+          @if(event().missionType === 'presencial') {
+            <div>
+                <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Endereço *</label>
+                <input type="text" id="address" [ngModel]="event().address" (ngModelChange)="updateField('address', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm">
+            </div>
+          } @else {
+             <div>
+                <label for="callLink" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Link da Chamada *</label>
+                <input type="url" id="callLink" [ngModel]="event().callLink" (ngModelChange)="updateField('callLink', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm">
+            </div>
+          }
+          <div class="mt-4">
+            <label for="vacancies" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Número de Vagas</label>
+            <input type="number" id="vacancies" [ngModel]="event().vacancies" (ngModelChange)="updateField('vacancies', $event)" class="mt-1 block w-40 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm">
+          </div>
+        </div>
+
+        <!-- Dates and Times -->
+        <div class="p-4 border dark:border-gray-700 rounded-lg">
+            <h3 class="font-bold text-lg mb-4">Datas e Horários</h3>
+            <div class="space-y-2">
+              @for(date of event().dates; track date.id) {
+                <div class="flex items-center gap-4 p-2 bg-gray-50 dark:bg-gray-900/50 rounded-md">
+                   <input type="datetime-local" [ngModel]="date.startDate" (ngModelChange)="updateDate(date.id, 'startDate', $event)" class="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
+                   <span class="text-gray-500">até</span>
+                   <input type="datetime-local" [ngModel]="date.endDate" (ngModelChange)="updateDate(date.id, 'endDate', $event)" class="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
+                   <button (click)="removeDate(date.id)" class="p-2 rounded-full text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50"><span class="material-symbols-outlined">delete</span></button>
+                </div>
+              }
+            </div>
+            <button (click)="addDate()" class="mt-4 flex items-center gap-2 text-purple-600 dark:text-purple-400 font-semibold"><span class="material-symbols-outlined">add</span> Adicionar Data</button>
+        </div>
+
+         <!-- Instructors -->
+        <div class="p-4 border dark:border-gray-700 rounded-lg">
+            <h3 class="font-bold text-lg mb-4">Instrutores</h3>
+            <div class="space-y-2">
+              @for(instructor of event().instructors; track instructor.id) {
+                <div class="flex items-center gap-4 p-2 bg-gray-50 dark:bg-gray-900/50 rounded-md">
+                   <input type="text" placeholder="Nome do instrutor" [ngModel]="instructor.name" (ngModelChange)="updateInstructorName(instructor.id, $event)" class="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
+                   <button (click)="removeInstructor(instructor.id)" class="p-2 rounded-full text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50"><span class="material-symbols-outlined">delete</span></button>
+                </div>
+              }
+            </div>
+            <button (click)="addInstructor()" class="mt-4 flex items-center gap-2 text-purple-600 dark:text-purple-400 font-semibold"><span class="material-symbols-outlined">add</span> Adicionar Instrutor</button>
+        </div>
+      </div>
+    }
+    @case (5) {
+      <!-- Step 5: Support Materials -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Materiais de Apoio</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Anexe arquivos que ficarão disponíveis para os participantes do evento.</p>
+      
+      <div>
+        <!-- Upload Area -->
+        <label 
+            for="material-upload"
+            class="w-full flex flex-col items-center justify-center px-6 py-10 border-2 border-dashed rounded-md cursor-pointer transition-colors"
+            [class.border-purple-500]="isDraggingOver()"
+            [class.bg-purple-50]="isDraggingOver()"
+            [class.dark:bg-purple-900/20]="isDraggingOver()"
+            [class.border-gray-300]="!isDraggingOver()"
+            [class.dark:border-gray-600]="!isDraggingOver()"
+            (dragover)="isDraggingOver.set(true); $event.preventDefault()"
+            (dragleave)="isDraggingOver.set(false)"
+            (drop)="handleFileDrop($event)">
+          <span class="material-symbols-outlined text-5xl text-gray-400 dark:text-gray-500">upload_file</span>
+          <p class="mt-2 text-lg text-gray-600 dark:text-gray-300 font-semibold">Arraste e solte os arquivos aqui</p>
+          <p class="text-gray-500 dark:text-gray-400">ou</p>
+          <span class="mt-2 text-sm text-purple-600 dark:text-purple-400 font-bold">Selecione os arquivos</span>
+        </label>
+        <input id="material-upload" type="file" class="sr-only" multiple (change)="handleFileSelect($event)">
+        
+        <!-- Uploaded Files List -->
+        @if (event().supportMaterials?.length > 0) {
+          <div class="mt-6 space-y-3">
+            @for (material of event().supportMaterials; track material.id) {
+              <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border dark:border-gray-600 flex items-center justify-between">
+                <div class="flex items-center gap-3 overflow-hidden">
+                   <span class="material-symbols-outlined text-gray-500 dark:text-gray-400 shrink-0">description</span>
+                   <div class="overflow-hidden">
+                     <p class="font-semibold text-gray-800 dark:text-gray-200 truncate" [title]="material.name">{{ material.name }}</p>
+                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatBytes(

@@ -1,0 +1,131 @@
+<div class="p-4 sm:p-6 lg:p-8 h-full flex flex-col">
+  <!-- Header -->
+  <header class="flex flex-col sm:flex-row justify-between sm:items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">Gerenciamento de Grupos</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-1">Crie, edite e gerencie seus grupos de usuários.</p>
+    </div>
+    <div class="flex items-center gap-2 mt-4 sm:mt-0">
+      <div class="relative inline-block text-left">
+        <div>
+          <button type="button" class="inline-flex w-full justify-center gap-x-1.5 rounded-full bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600" id="menu-button" aria-expanded="true" aria-haspopup="true">
+            Importar
+            <span class="material-symbols-outlined -mr-1 h-5 w-5 text-gray-400">expand_more</span>
+          </button>
+        </div>
+        <!-- Dropdown menu -->
+        <div class="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+          <div class="py-1" role="none">
+            <a href="#" (click)="openImportModal('Usuários')" class="text-gray-700 dark:text-gray-300 block px-4 py-2 text-sm" role="menuitem" tabindex="-1">Importar Usuários</a>
+            <a href="#" (click)="openImportModal('Missões')" class="text-gray-700 dark:text-gray-300 block px-4 py-2 text-sm" role="menuitem" tabindex="-1">Importar Missões</a>
+            <a href="#" (click)="openImportModal('Canais')" class="text-gray-700 dark:text-gray-300 block px-4 py-2 text-sm" role="menuitem" tabindex="-1">Importar Canais</a>
+          </div>
+        </div>
+      </div>
+      <button (click)="openCreateModal()" class="flex items-center gap-2 bg-purple-600 text-white font-semibold py-2 px-4 rounded-full hover:bg-purple-700 transition">
+        <span class="material-symbols-outlined text-xl">add</span>
+        Criar Grupo
+      </button>
+    </div>
+  </header>
+
+  <!-- Search -->
+  <div class="mb-6">
+    <div class="relative">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar por nome do grupo..." class="w-full max-w-lg pl-10 pr-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+    </div>
+  </div>
+
+  <!-- Groups Grid -->
+  <div class="flex-1 overflow-y-auto -mx-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-2">
+      @for(group of filteredGroups(); track group.id) {
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col">
+          <div class="p-4 flex-grow">
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 break-all">{{ group.name }}</h3>
+              <div class="relative">
+                <button (click)="toggleGroupMenu(group.id)" [class.invisible]="group.is_integration" class="p-2 -mt-2 -mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                  <span class="material-symbols-outlined">more_vert</span>
+                </button>
+                @if (activeGroupMenu() === group.id) {
+                  <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-md shadow-lg z-10 ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10">
+                    <a (click)="openEditModal(group)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">edit</span>Editar</a>
+                    <a (click)="openDeleteModal(group)" class="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer"><span class="material-symbols-outlined text-base">delete</span>Excluir</a>
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <div class="flex items-center gap-2"><span class="material-symbols-outlined text-base">person</span><span>{{ group.users }} Usuários</span></div>
+              <div class="flex items-center gap-2"><span class="material-symbols-outlined text-base">flag</span><span>{{ group.missions }} Missões</span></div>
+              <div class="flex items-center gap-2"><span class="material-symbols-outlined text-base">timeline</span><span>{{ group.learning_trails }} Trilhas</span></div>
+              <div class="flex items-center gap-2"><span class="material-symbols-outlined text-base">hub</span><span>{{ group.channels }} Canais</span></div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700/60 rounded-b-lg">
+            @if(group.is_integration) {
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Grupo de Integração</span>
+            } @else {
+              <a href="#" class="text-sm font-semibold text-purple-600 dark:text-purple-400 hover:underline">Ver Detalhes</a>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+@switch(modalView()) {
+  @case('createEdit') {
+    <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50" (click)="closeModal()">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 m-4" (click)="$event.stopPropagation()">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">{{ isEditing() ? 'Editar' : 'Criar' }} Grupo</h2>
+        <div>
+          <label for="groupName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome do Grupo *</label>
+          <input type="text" id="groupName" [(ngModel)]="newGroupName" maxlength="50" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+          @if(nameError(); as error) {
+            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+          }
+        </div>
+        <div class="mt-8 flex justify-end gap-4">
+          <button (click)="closeModal()" class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition">Cancelar</button>
+          <button (click)="saveGroup()" class="bg-purple-800 text-white font-bold py-2 px-4 rounded-full hover:bg-purple-900 transition">Salvar</button>
+        </div>
+      </div>
+    </div>
+  }
+  @case('delete') {
+    <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50" (click)="closeModal()">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 m-4 text-center" (click)="$event.stopPropagation()">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/50"><span class="material-symbols-outlined text-3xl text-red-600 dark:text-red-500">delete_forever</span></div>
+        <h3 class="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-200">Excluir Grupo?</h3>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Tem certeza que deseja excluir o grupo <span class="font-bold">"{{ groupToDelete()?.name }}"</span>? Esta ação não pode ser desfeita.</p>
+        <div class="mt-8 grid grid-cols-2 gap-4">
+          <button (click)="closeModal()" class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition">Cancelar</button>
+          <button (click)="confirmDelete()" class="bg-red-600 text-white font-bold py-2 px-4 rounded-full hover:bg-red-700 transition">Excluir</button>
+        </div>
+      </div>
+    </div>
+  }
+  @case('import') {
+    <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50" (click)="closeModal()">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 m-4" (click)="$event.stopPropagation()">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">Importar {{ importType() }}</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">Selecione um arquivo XML para importar. <a href="#" class="text-purple-600 dark:text-purple-400 hover:underline">Baixar template</a>.</p>
+        <div>
+          <label for="import-file" class="w-full flex justify-center px-6 py-10 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:border-purple-500">
+            <div class="text-center"><span class="material-symbols-outlined text-4xl text-gray-400">upload_file</span><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Clique para selecionar o arquivo</p></div>
+          </label>
+          <input type="file" id="import-file" class="sr-only" accept=".xml">
+        </div>
+        <div class="mt-8 flex justify-end gap-4">
+          <button (click)="closeModal()" class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition">Cancelar</button>
+          <button (click)="handleImport()" class="bg-purple-800 text-white font-bold py-2 px-4 rounded-full hover:bg-purple-900 transition">Importar</button>
+        </div>
+      </div>
+    </div>
+  }
+}

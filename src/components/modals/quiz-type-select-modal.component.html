@@ -1,0 +1,45 @@
+<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fade-in" (click)="close.emit()">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl p-8 m-4 animate-scale-up" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200">Selecione o Tipo de Quiz</h2>
+      <button (click)="close.emit()" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
+        <span class="material-symbols-outlined text-3xl">close</span>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Option A: Evaluative Quiz -->
+      <div (click)="typeSelected.emit('evaluative')" class="group p-6 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-500 dark:hover:border-purple-400 bg-purple-50/50 dark:bg-purple-900/10 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col items-center text-center">
+        <div class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center mb-4">
+            <span class="material-symbols-outlined text-4xl text-purple-600 dark:text-purple-400">quiz</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Avaliativo</h3>
+        <p class="text-gray-600 dark:text-gray-400">Para validar conhecimento.</p>
+      </div>
+
+      <!-- Option B: Survey Quiz -->
+      <div 
+        id="quiz-survey-type"
+        (click)="typeSelected.emit('survey')" 
+        class="group p-6 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-500 dark:hover:border-purple-400 bg-purple-50/50 dark:bg-purple-900/10 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col items-center text-center"
+        [class.highlight-feature]="isHighlighting()">
+        <div class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center mb-4">
+            <span class="material-symbols-outlined text-4xl text-purple-600 dark:text-purple-400">poll</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Pesquisa</h3>
+        <p class="text-gray-600 dark:text-gray-400">Para coletar opiniões.</p>
+      </div>
+    </div>
+     <div class="mt-8 flex justify-end">
+        <button (click)="close.emit()" class="bg-transparent text-gray-700 dark:text-gray-300 font-semibold py-2 px-6 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition border border-gray-300 dark:border-gray-600">
+            Voltar
+        </button>
+    </div>
+  </div>
+</div>
+<style>
+  .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+  .animate-scale-up { animation: scaleUp 0.3s ease-out forwards; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>

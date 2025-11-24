@@ -1,0 +1,99 @@
+
+
+<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fade-in" (click)="close.emit()">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl p-8 m-4 animate-scale-up relative overflow-hidden" (click)="$event.stopPropagation()">
+    <div class="flex items-center mb-6">
+      <button (click)="back.emit()" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 text-center flex-grow">Gerar Quiz com IA</h2>
+      <button (click)="close.emit()" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
+        <span class="material-symbols-outlined text-3xl">close</span>
+      </button>
+    </div>
+
+    <div class="space-y-4">
+       @if (contextContent().length > 0) {
+        <div class="space-y-3">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Selecione os conteúdos base para o quiz:</label>
+          <div class="max-h-48 overflow-y-auto space-y-2 rounded-md border dark:border-gray-600 p-2 bg-gray-50 dark:bg-gray-700/50">
+            @for(content of contextContent(); track content.id) {
+              <label [for]="'content-' + content.id" 
+                     class="flex items-center gap-3 p-2 rounded-md cursor-pointer transition-colors"
+                     [class.bg-purple-100]="isSelected(content.id)"
+                     [class.dark:bg-purple-900/30]="isSelected(content.id)"
+                     [class.hover:bg-gray-200]="!isSelected(content.id)"
+                     [class.dark:hover:bg-gray-600]="!isSelected(content.id)">
+                <input type="checkbox" [id]="'content-' + content.id" [checked]="isSelected(content.id)" (change)="toggleSelection(content.id)" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                <span class="material-symbols-outlined text-gray-600 dark:text-gray-400">
+                  @switch(content.type) {
+                    @case('video') { movie }
+                    @case('audio') { headphones }
+                    @case('image') { image }
+                    @case('document') { description }
+                    @case('web') { link }
+                    @case('scorm') { extension }
+                    @default { article }
+                  }
+                </span>
+                <span class="text-gray-800 dark:text-gray-200 text-sm font-medium truncate">{{ content.title }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label for="num-questions" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantidade de questões</label>
+            <input id="num-questions" type="number" min="1" max="20" [(ngModel)]="numberOfQuestions" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm">
+        </div>
+        <div>
+            <label for="num-answers" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Respostas por questão</label>
+            <input id="num-answers" type="number" min="2" max="6" [(ngModel)]="answersPerQuestion" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm">
+        </div>
+      </div>
+
+      @if (contextContent().length === 0) {
+        <div>
+            <label for="quiz-topic" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span>Sobre qual tópico você quer gerar um quiz?</span>
+            </label>
+            <input type="text" id="quiz-topic" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm" [(ngModel)]="quizTopic" placeholder="Ex: Fundamentos da metodologia ágil Scrum">
+        </div>
+      }
+    </div>
+
+    <div class="mt-8 text-right">
+        <button (click)="generateQuiz()" [disabled]="(selectedContentIds().size === 0 && !quizTopic().trim()) || isLoading()" class="bg-purple-600 text-white font-bold py-3 px-6 rounded-full hover:bg-purple-700 transition disabled:bg-purple-400 disabled:cursor-not-allowed flex items-center justify-center ml-auto">
+             @if(isLoading()) {
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Gerando...</span>
+             } @else {
+                <span class="material-symbols-outlined mr-2">auto_awesome</span>
+                <span>Gerar Quiz</span>
+             }
+        </button>
+    </div>
+    
+    @if(isLoading()) {
+        <div class="absolute inset-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-300">
+            <svg class="animate-spin h-10 w-10 text-purple-600 dark:text-purple-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-gray-700 dark:text-gray-300 font-medium text-lg animate-pulse">{{ loadingMessage() }}</p>
+        </div>
+    }
+
+  </div>
+</div>
+<style>
+  .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+  .animate-scale-up { animation: scaleUp 0.3s ease-out forwards; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>

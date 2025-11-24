@@ -1,0 +1,518 @@
+<app-creation-wizard 
+  title="Criar curso interno"
+  [steps]="steps"
+  [currentStep]="currentStep()"
+  [isDirty]="isDirty()"
+  (stepChange)="handleStepChange($event)"
+  (saveAndNext)="handleSaveAndNext()"
+  (publish)="publishCourse()"
+  (exit)="exit.emit()">
+
+  <!-- Main Content -->
+  @switch (currentStep()) {
+    @case (1) {
+      <!-- Step 1: Information -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Informações</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Preencha os campos com todas as informações</p>
+      <div class="space-y-6">
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome *</label>
+            <input type="text" id="name" maxlength="200" [ngModel]="course().name" (ngModelChange)="updateField('name', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+            <p class="text-right text-xs text-gray-500 dark:text-gray-400 mt-1">{{ course().name.length }}/200</p>
+          </div>
+          <div>
+            <label for="code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Código interno</label>
+            <input type="text" id="code" [ngModel]="course().internalCode" (ngModelChange)="updateField('internalCode', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+          </div>
+        </div>
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoria *</label>
+          <input type="text" id="category" [ngModel]="course().category" (ngModelChange)="updateField('category', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+        </div>
+        <div class="grid grid-cols-3 gap-6">
+          <div>
+            <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Idioma *</label>
+            <select id="language" [ngModel]="course().language" (ngModelChange)="updateField('language', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+              <option value="pt-BR">Português (BR)</option>
+              <option value="en-US">Inglês (US)</option>
+            </select>
+          </div>
+          <div>
+            <label for="courseType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo *</label>
+            <select id="courseType" [ngModel]="course().courseType" (ngModelChange)="updateField('courseType', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+              <option value="type1">Tipo 1</option>
+              <option value="type2">Tipo 2</option>
+            </select>
+          </div>
+          <div>
+            <label for="evaluationType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Avaliação *</label>
+            <select id="evaluationType" [ngModel]="course().evaluationType" (ngModelChange)="updateField('evaluationType', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200">
+              <option value="eval1">Avaliação 1</option>
+              <option value="eval2">Avaliação 2</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Descrição *</label>
+          <textarea id="description" rows="4" maxlength="250" [ngModel]="course().description" (ngModelChange)="updateField('description', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:text-gray-200"></textarea>
+          <p class="text-right text-xs text-gray-500 dark:text-gray-400 mt-1">{{ course().description.length }}/250</p>
+        </div>
+      </div>
+    }
+    @case (2) {
+      <!-- Step 2: Images -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Imagens</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Escolha as imagens para a exibição do banner e para o card do curso</p>
+      <div>
+        <div class="border-b border-gray-200 dark:border-gray-700">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button (click)="imageTab.set('banner')" [class.border-purple-500]="imageTab() === 'banner'" [class.dark:border-purple-400]="imageTab() === 'banner'" [class.text-purple-600]="imageTab() === 'banner'" [class.dark:text-purple-400]="imageTab() === 'banner'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Banner</button>
+                <button (click)="imageTab.set('card')" [class.border-purple-500]="imageTab() === 'card'" [class.dark:border-purple-400]="imageTab() === 'card'" [class.text-purple-600]="imageTab() === 'card'" [class.dark:text-purple-400]="imageTab() === 'card'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Card</button>
+            </nav>
+        </div>
+        <div class="mt-6">
+          @if(imageTab() === 'banner') {
+            <div class="relative group w-full border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700/50 aspect-[3/1]">
+              @if (bannerPreview(); as banner) {
+                <img [src]="banner" alt="Banner preview" class="w-full h-full object-cover rounded-lg">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 rounded-lg">
+                  <button (click)="openImageUploadModal('banner')" class="flex items-center gap-2 bg-white/90 text-gray-800 font-semibold py-2 px-4 rounded-full hover:bg-white transition-colors">
+                    <span class="material-symbols-outlined">edit</span>
+                    Alterar Imagem
+                  </button>
+                  <button (click)="removeImage('banner')" class="flex items-center gap-2 bg-white/90 text-red-600 font-semibold py-2 px-4 rounded-full hover:bg-white transition-colors">
+                    <span class="material-symbols-outlined">delete</span>
+                    Remover
+                  </button>
+                </div>
+              } @else {
+                <div (click)="openImageUploadModal('banner')" class="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 dark:hover:border-purple-500 transition-all duration-300">
+                  <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500">image</span>
+                  <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 font-semibold">Clique para adicionar uma imagem</p>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">A proporção da imagem deve ser 3:1</p>
+                </div>
+              }
+            </div>
+          }
+          @if(imageTab() === 'card') {
+            <div class="relative group w-full max-w-sm border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700/50 aspect-[9/16]">
+              @if (cardPreview(); as card) {
+                <img [src]="card" alt="Card preview" class="w-full h-full object-cover rounded-lg">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 rounded-lg">
+                  <button (click)="openImageUploadModal('card')" class="flex items-center gap-2 bg-white/90 text-gray-800 font-semibold py-2 px-4 rounded-full hover:bg-white transition-colors">
+                    <span class="material-symbols-outlined">edit</span>
+                    Alterar Imagem
+                  </button>
+                  <button (click)="removeImage('card')" class="flex items-center gap-2 bg-white/90 text-red-600 font-semibold py-2 px-4 rounded-full hover:bg-white transition-colors">
+                    <span class="material-symbols-outlined">delete</span>
+                    Remover
+                  </button>
+                </div>
+              } @else {
+                <div (click)="openImageUploadModal('card')" class="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 dark:hover:border-purple-500 transition-all duration-300">
+                  <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500">image</span>
+                  <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 font-semibold">Clique para adicionar uma imagem</p>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">A proporção da imagem deve ser 9:16</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+    @case (3) {
+      <!-- Step 3: Settings -->
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Configurações</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-8">Ative ou desative funções para esse curso</p>
+
+      <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+              <button (click)="settingsTab.set('settings')" [class.border-purple-500]="settingsTab() === 'settings'" [class.dark:border-purple-400]="settingsTab() === 'settings'" [class.text-purple-600]="settingsTab() === 'settings'" [class.dark:text-purple-400]="settingsTab() === 'settings'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Configurações</button>
+              <button (click)="settingsTab.set('groups')" [class.border-purple-500]="settingsTab() === 'groups'" [class.dark:border-purple-400]="settingsTab() === 'groups'" [class.text-purple-600]="settingsTab() === 'groups'" [class.dark:text-purple-400]="settingsTab() === 'groups'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Grupos</button>
+              <button (click)="settingsTab.set('contributors')" [class.border-purple-500]="settingsTab() === 'contributors'" [class.dark:border-purple-400]="settingsTab() === 'contributors'" [class.text-purple-600]="settingsTab() === 'contributors'" [class.dark:text-purple-400]="settingsTab() === 'contributors'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Contribuidores</button>
+          </nav>
+      </div>
+
+      @switch (settingsTab()) {
+        @case('settings') {
+          <div class="space-y-4">
+            @for (setting of [
+                { key: 'isActive', label: 'Curso ativo', desc: '' },
+                { key: 'enableSatisfactionSurvey', label: 'Pesquisa de satisfação', desc: '' },
+                { key: 'allowRetake', label: 'Permitir rematrícula', desc: '' },
+                { key: 'allowRetakeForFailed', label: 'Permitir rematrícula para reprovados', desc: '', dependsOn: 'allowRetake' },
+                { key: 'minimumPerformanceRequired', label: 'Performance mínima', desc: '' },
+                { key: 'hasCustomMetadata', label: 'Data meta personalizada', desc: '' },
+                { key: 'isTemporary', label: 'Curso temporário', desc: '' },
+                { key: 'contentLocking', label: 'Trava para avanço de conteúdo', desc: '' },
+                { key: 'hasCustomCertificate', label: 'Certificado personalizado', desc: '' }
+            ]; track setting.key) {
+              @if (!setting.dependsOn || course()[setting.dependsOn]) {
+                <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-700/50 border dark:border-gray-600 rounded-lg" [class.ml-8]="setting.dependsOn">
+                  <div class="flex items-center">
+                    <label [for]="setting.key" class="font-medium text-gray-800 dark:text-gray-200 mr-2">{{ setting.label }}</label>
+                    <span class="material-symbols-outlined text-base text-gray-500 dark:text-gray-400 cursor-help" title="Descrição detalhada aqui">info</span>
+                  </div>
+                  <div class="flex items-center">
+                    @if(setting.key === 'contentLocking' && course().contentLocking.enabled) {
+                      <span class="text-sm text-gray-600 dark:text-gray-400 mr-4">Tempo mínimo*</span>
+                      <input type="number" min="0" max="100" class="w-20 text-center bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg mr-4" [ngModel]="course().contentLocking.minimumTime" (ngModelChange)="updateContentLocking(true, $event)" />
+                    }
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" [id]="setting.key" class="sr-only peer" [ngModel]="setting.key === 'contentLocking' ? course().contentLocking.enabled : course()[setting.key]" (ngModelChange)="setting.key === 'contentLocking' ? updateContentLocking($event) : updateField(setting.key, $event)">
+                      <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-purple-500"></div>
+                    </label>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+        @case('groups') {
+          <div>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">Adicione os grupos que estarão vinculados a este curso</p>
+            <div class="p-4 bg-white dark:bg-gray-700/50 border dark:border-gray-600 rounded-lg">
+              <input type="text" placeholder="Adicione um grupo" class="w-full bg-transparent border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+            </div>
+          </div>
+        }
+        @case('contributors') {
+          <div>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">Adicione os contribuidores deste curso</p>
+            <div class="p-4 bg-white dark:bg-gray-700/50 border dark:border-gray-600 rounded-lg">
+              <input type="text" placeholder="Adicione um contribuidor" class="w-full bg-transparent border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+            </div>
+          </div>
+        }
+      }
+    }
+    @case (4) {
+      <!-- Step 4: Contents (Redesigned) -->
+      <div>
+         <header class="flex justify-between items-center mb-8">
+          <div>
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-1">Conteúdos</h2>
+            <p class="text-gray-600 dark:text-gray-400">Construa a estrutura do seu curso, adicionando tópicos e conteúdos.</p>
+          </div>
+          <div class="flex items-center gap-4">
+             <button (click)="previewCourse()" [disabled]="!hasContent()" class="bg-transparent text-purple-600 dark:text-purple-400 font-semibold py-2 px-4 rounded-full border border-purple-600 dark:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Visualizar Como Usuário
+            </button>
+            <button (click)="addTopic()" class="flex items-center gap-2 bg-purple-600 text-white font-semibold py-2 px-4 rounded-full hover:bg-purple-700 transition">
+              <span class="material-symbols-outlined text-xl">add</span>
+              Novo Tópico
+            </button>
+          </div>
+        </header>
+
+        <div class="w-full">
+          <div class="space-y-4">
+            @for(topic of course().topics; track topic.id) {
+              <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                (dragover)="onDragOver($event, topic.id)"
+                (dragleave)="onDragLeave($event)"
+                (drop)="onDrop($event, topic.id)">
+                <!-- Topic Header -->
+                <header 
+                  class="flex items-center p-3 group"
+                  draggable="true"
+                  (dragstart)="onDragStart($event, 'topic', topic.id)"
+                  (dragend)="onDragEnd($event)">
+                  <span class="material-symbols-outlined text-gray-500 dark:text-gray-400 cursor-grab p-1">drag_handle</span>
+                  <div class="flex-grow mx-2 cursor-pointer" (click)="toggleTopicExpansion(topic.id)">
+                    @if (editingTopicId() === topic.id) {
+                      <input type="text" [value]="topic.title" (blur)="saveTopicTitle(topic.id, $event)" (keyup.enter)="saveTopicTitle(topic.id, $event)" class="font-semibold text-lg text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-600 border border-purple-500 rounded-lg px-2 py-1 -my-1 w-full focus:outline-none focus:ring-2 focus:ring-purple-500" (click)="$event.stopPropagation()" (focus)="$event.target.select()" cdkFocusInitial>
+                    } @else {
+                      <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 px-2 py-1 -my-1 rounded-lg truncate">{{ topic.title }}</h3>
+                    }
+                  </div>
+                  <div class="relative">
+                    <button (click)="toggleTopicMenu(topic.id)" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                      <span class="material-symbols-outlined">more_vert</span>
+                    </button>
+                    @if (activeTopicMenu() === topic.id) {
+                        <div class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-md shadow-xl z-10 ring-1 ring-black ring-opacity-5 dark:ring-1 dark:ring-white dark:ring-opacity-10" (click)="$event.stopPropagation()">
+                            <a (click)="startTopicEdit(topic.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">edit</span>Renomear</a>
+                            <a (click)="duplicateTopic(topic.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">content_copy</span>Duplicar</a>
+                            <div class="border-t my-1 dark:border-gray-700"></div>
+                            <a (click)="removeTopic(topic.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer"><span class="material-symbols-outlined text-base">delete</span>Excluir Tópico</a>
+                        </div>
+                    }
+                  </div>
+                   <button (click)="toggleTopicExpansion(topic.id)" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                      <span class="material-symbols-outlined transition-transform" [class.rotate-180]="!isTopicExpanded(topic.id)">expand_more</span>
+                  </button>
+                </header>
+                <!-- Content Area -->
+                @if (isTopicExpanded(topic.id)) {
+                  <div class="p-3 pl-12 space-y-2 drop-zone border-t border-gray-200 dark:border-gray-700">
+                      @for(content of topic.contents; track content.id) {
+                        @if (content.type === 'quiz' && content.quizData?.quizType === 'survey') {
+                          <div class="p-4 rounded-lg bg-white dark:bg-gray-700 border dark:border-gray-600">
+                            <div class="flex items-center justify-between">
+                              <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-2xl text-purple-600 dark:text-purple-400">poll</span>
+                                <div>
+                                  <p class="font-semibold">{{ content.title }}</p>
+                                  <p class="text-xs text-gray-500 dark:text-gray-400">17 de novembro de 2025</p>
+                                </div>
+                                <span class="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 text-xs font-bold px-2 py-0.5 rounded-full">
+                                  Pesquisa
+                                </span>
+                              </div>
+                              <div class="flex items-center gap-2">
+                                <button (click)="openAddQuestionModal(content)" class="flex items-center gap-2 text-sm font-semibold border border-gray-300 dark:border-gray-500 rounded-full px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                  <span class="material-symbols-outlined text-base">add</span> Pergunta
+                                </button>
+                                <select class="text-sm border border-gray-300 dark:border-gray-500 rounded-full px-3 py-1.5 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600"><option>1 dia após a...</option></select>
+                                <select class="text-sm border border-gray-300 dark:border-gray-500 rounded-full px-3 py-1.5 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600"><option>Manhã</option></select>
+                                <button (click)="editQuiz(topic.id, content.id)" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500"><span class="material-symbols-outlined text-base">edit</span></button>
+                                <button (click)="removeContentItem(topic.id, content.id)" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500"><span class="material-symbols-outlined text-base">delete</span></button>
+                              </div>
+                            </div>
+                             @if ((content.quizData?.questions || []).length === 0) {
+                              <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                                Cadastre a sua primeira pergunta
+                              </div>
+                            } @else {
+                              <!-- TODO: List questions here -->
+                            }
+                          </div>
+                        } @else {
+                          <div 
+                              class="flex items-center p-2 rounded-md bg-white dark:bg-gray-700 border dark:border-gray-600 group"
+                              draggable="true"
+                              (dragstart)="onDragStart($event, 'content', topic.id, content.id)"
+                              (dragend)="onDragEnd($event)">
+                              <span class="material-symbols-outlined mr-2 text-gray-400 dark:text-gray-500 cursor-grab group-hover:text-gray-600 p-1">drag_handle</span>
+                              <span class="material-symbols-outlined mr-3 text-gray-600 dark:text-gray-300">
+                              @switch(content.type) {
+                                  @case('video') { movie } @case('audio') { headphones } @case('image') { image }
+                                  @case('document') { description } @case('web') { link }
+                                  @case('scorm') { extension } @case('quiz') { quiz }
+                              }
+                              </span>
+                              <p class="flex-grow text-gray-700 dark:text-gray-300 truncate">
+                                {{ content.title }}
+                                @if(content.type === 'quiz') {
+                                  <span class="text-gray-500 text-sm ml-1">({{ content.quizData?.questions?.length ?? 0 }} questões)</span>
+                                }
+                              </p>
+                              <div class="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  @if (content.type === 'quiz') {
+                                    <button (click)="editQuiz(topic.id, content.id)" class="font-semibold text-sm py-1 px-3 rounded-full border bg-white dark:bg-gray-600 dark:border-gray-500 dark:hover:bg-gray-500 hover:bg-gray-100 transition-colors mx-2">Editar Quiz</button>
+                                  } @else {
+                                    <button class="font-semibold text-sm py-1 px-3 rounded-full border bg-white dark:bg-gray-600 dark:border-gray-500 dark:hover:bg-gray-500 hover:bg-gray-100 transition-colors mx-2">Editar</button>
+                                  }
+                                  <div class="relative">
+                                  <button (click)="toggleContentMenu(content.id)" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400">
+                                      <span class="material-symbols-outlined text-base">more_vert</span>
+                                  </button>
+                                  @if (activeContentMenu() === content.id) {
+                                      <div class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-md shadow-xl z-10 ring-1 ring-black ring-opacity-5 dark:ring-1 dark:ring-white dark:ring-opacity-10" (click)="$event.stopPropagation()">
+                                          @if (content.type === 'quiz') {
+                                             <a (click)="previewQuiz(content.quizData!)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">visibility</span>Pré-visualizar</a>
+                                          } @else {
+                                             <a class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">visibility</span>Pré-visualizar</a>
+                                          }
+                                          <a (click)="duplicateContentItem(topic.id, content.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">content_copy</span>Duplicar</a>
+                                          <a class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">low_priority</span>Mover para...</a>
+                                          <div class="border-t my-1 dark:border-gray-700"></div>
+                                          <a (click)="removeContentItem(topic.id, content.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer"><span class="material-symbols-outlined text-base">delete</span>Excluir</a>
+                                      </div>
+                                  }
+                                  </div>
+                              </div>
+                          </div>
+                        }
+                      }
+                      @if (dropTargetId() === topic.id && draggedItem()?.type === 'content') {
+                          <div class="drop-placeholder"><span class="material-symbols-outlined text-gray-400">add</span><span class="text-sm font-medium text-gray-500">Solte aqui para adicionar</span></div>
+                      }
+                      <div class="relative mt-2 flex items-center gap-2">
+                         <div class="relative flex-grow">
+                            <button (click)="toggleAddContentMenu(topic.id, $event)" class="w-full text-left flex items-center gap-2 p-2 rounded-full text-gray-600 dark:text-gray-400 font-medium hover:bg-purple-50 dark:hover:bg-purple-500/10 hover:text-purple-700 dark:hover:text-purple-400 transition-colors">
+                                <span class="material-symbols-outlined">add_circle</span>
+                                Adicionar Conteúdo
+                            </button>
+                            @if (activeAddContentMenu() === topic.id) {
+                                <div (click)="activeAddContentMenu.set(null)" class="fixed inset-0 z-10"></div>
+                                <div class="absolute left-0 w-72 bg-white dark:bg-gray-900 rounded-md shadow-lg z-20 ring-1 ring-black ring-opacity-5 dark:ring-1 dark:ring-white dark:ring-opacity-10 py-1"
+                                    [class.bottom-full]="addContentMenuDirection() === 'up'"
+                                    [class.mb-2]="addContentMenuDirection() === 'up'"
+                                    [class.top-full]="addContentMenuDirection() === 'down'"
+                                    [class.mt-2]="addContentMenuDirection() === 'down'">
+                                @for(contentType of contentTypes; track contentType.type) {
+                                    <a (click)="handleContentSelected(contentType.type, topic.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                        <span class="material-symbols-outlined text-base w-5 text-center">{{ contentType.icon }}</span>
+                                        <span>{{ contentType.label }}</span>
+                                    </a>
+                                }
+                                </div>
+                            }
+                         </div>
+
+                         <button 
+                            (click)="generateQuickQuiz(topic)"
+                            [disabled]="isQuickQuizDisabled(topic)"
+                            class="flex-shrink-0 flex items-center gap-2 p-2 rounded-full text-purple-600 dark:text-purple-400 font-medium hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent">
+                            @if (quickQuizLoadingTopicId() === topic.id) {
+                              <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              <span>Gerando...</span>
+                            } @else {
+                              <span class="material-symbols-outlined">auto_awesome</span>
+                              <span>Gerar Quiz Rápido</span>
+                            }
+                         </button>
+                      </div>
+                  </div>
+                }
+              </div>
+            }
+            @if (dropTargetId() && draggedItem()?.type === 'topic') {
+                <div class="drop-placeholder"><span class="material-symbols-outlined text-gray-400">add</span><span class="text-sm font-medium text-gray-500">Solte aqui para reordenar</span></div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+    @case (5) {
+      <!-- Step 5: Finalize -->
+      <div class="flex flex-col items-center justify-center h-full text-center">
+         <div class="relative mb-4">
+            <span class="material-symbols-outlined text-9xl text-gray-300 dark:text-gray-600">circle</span>
+            <span class="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">Em Criação</span>
+         </div>
+         <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Curso criado com sucesso</h2>
+         <p class="text-gray-600 dark:text-gray-400 max-w-md mb-8">Seu curso será processado e em seguida estará pronto para revisão.</p>
+         <button (click)="publishCourse()" class="bg-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-purple-700 transition">Publicar curso</button>
+      </div>
+    }
+  }
+</app-creation-wizard>
+
+<!-- Image Upload Modal -->
+@if(showImageUploadModal() && imageTarget(); as target) {
+  <app-image-upload-modal 
+    [imageType]="target"
+    (close)="showImageUploadModal.set(false)"
+    (imageSelected)="handleImageSelected($event)"
+  />
+}
+
+<!-- Image Cropper Modal -->
+@if(showImageCropperModal() && imageToCrop(); as imageUrl) {
+  <app-image-cropper-modal
+    [imageUrl]="imageUrl"
+    [aspectRatioType]="imageTarget()!"
+    (close)="closeCropperModal()"
+    (cropped)="handleImageCropped($event)"
+  />
+}
+
+<!-- Use for Card Confirmation Modal -->
+@if(showUseForCardConfirmModal()) {
+  <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fade-in">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 m-4 animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="text-center">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/50">
+          <span class="material-symbols-outlined text-3xl text-purple-600 dark:text-purple-500">photo_library</span>
+        </div>
+        <h3 class="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-200">Reaproveitar Imagem</h3>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">
+          Deseja usar esta mesma imagem para o card do curso? Você poderá ajustar o recorte para o formato de card.
+        </p>
+      </div>
+      <div class="mt-8 grid grid-cols-2 gap-4">
+        <button (click)="handleDeclineUseForCard()" class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+          Não, obrigado
+        </button>
+        <button (click)="handleConfirmUseForCard()" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full hover:bg-purple-700 transition">
+          Sim, usar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+
+<!-- Quiz Player (Fullscreen) -->
+@if (quizToPreview(); as quiz) {
+  <app-quiz-player [quizData]="quiz" (exitPreview)="exitQuizPreview()" />
+}
+
+<!-- Quiz Creation Modals -->
+@switch (quizCreationState()) {
+  @case ('quizTypeSelect') {
+    <app-quiz-type-select-modal 
+      [highlightTarget]="highlightTarget()"
+      (close)="closeQuizModals()"
+      (typeSelected)="handleQuizTypeSelected($event)"
+    />
+  }
+  @case ('quizName') {
+    @if(quizTypeForCreation(); as type) {
+       <app-quiz-name-modal 
+        [quizType]="type"
+        (close)="closeQuizModals()"
+        (back)="backFromQuizName()"
+        (nameSaved)="handleQuizNameSaved($event)"
+       />
+    }
+  }
+  @case ('addQuestion') {
+    @if(editingQuizContent(); as content) {
+      <app-add-question-modal 
+        [quizType]="content.quizData?.quizType!"
+        [questionToEdit]="editingQuestion()"
+        (close)="closeQuizModals()"
+        (questionSaved)="handleQuestionSaved($event)"
+      />
+    }
+  }
+  @case ('method') {
+    <app-quiz-creation-method-modal
+      (close)="closeQuizModals()"
+      (creationMethodSelected)="handleQuizCreationMethodSelected($event)"
+    />
+  }
+  @case ('ai') {
+    <app-quiz-ai-assistant-modal
+      [contextContent]="contentForAiQuiz()"
+      (close)="closeQuizModals()"
+      (back)="backFromAiQuiz()"
+      (quizGenerated)="handleAiQuizGenerated($event)"
+    />
+  }
+  @case ('editor') {
+    @if(quizForContent(); as quiz) {
+      <app-quiz-editor-modal
+        [initialPulseData]="quiz"
+        [highlightTarget]="highlightTarget()"
+        (close)="closeQuizModals()"
+        (save)="handleQuizSaved($event)"
+      />
+    }
+  }
+}
+
+<!-- Toast Notifications -->
+@if(showPublishToast()) {
+  <div class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-lg flex items-center animate-fade-in-out z-50">
+    <span class="material-symbols-outlined mr-2">check_circle</span>
+    <span>Curso publicado com sucesso!</span>
+  </div>
+}
+<style>
+  .animate-fade-in-out {
+    animation: fadeInOut 3s ease-in-out forwards;
+  }
+  @keyframes fadeInOut {
+    0%, 100% { opacity: 0; transform: translateY(20px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+  }
+</style>
