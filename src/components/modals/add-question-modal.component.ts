@@ -2,11 +2,10 @@ import { Component, ChangeDetectionStrategy, output, input, signal, effect } fro
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuizQuestion } from '../../types';
-import { SimpleTextEditorComponent } from '../simple-text-editor/simple-text-editor.component';
 
 @Component({
   selector: 'app-add-question-modal',
-  imports: [CommonModule, FormsModule, SimpleTextEditorComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './add-question-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

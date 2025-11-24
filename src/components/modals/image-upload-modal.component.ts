@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, output, input, signal, viewChild, E
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GoogleGenAI } from '@google/genai';
-import { TooltipDirective } from '../tooltip/tooltip.directive';
 
 type UploadSource = 'computer' | 'drive' | 'pexels' | 'freepik' | 'ai';
 
@@ -17,7 +16,7 @@ interface AiChatEntry {
 @Component({
   selector: 'app-image-upload-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, TooltipDirective],
+  imports: [CommonModule, FormsModule, DatePipe],
   templateUrl: './image-upload-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

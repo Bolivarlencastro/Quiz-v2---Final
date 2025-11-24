@@ -96,10 +96,10 @@ export class CoursePlayerComponent implements OnDestroy {
   });
 
   // Content state derived from the displayed course
-  private allContentItems = computed<ContentItem[]>(() => 
+  public allContentItems = computed<ContentItem[]>(() =>
     this.displayedCourse().topics.flatMap(topic => topic.contents)
   );
-  private activeContentIndex = signal(0);
+  public activeContentIndex = signal(0);
 
   private baseActiveContent = computed<ContentItem | null>(() => {
     const all = this.allContentItems();
