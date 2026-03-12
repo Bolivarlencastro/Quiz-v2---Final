@@ -1,7 +1,9 @@
 :host {
   --app-shell-sidebar-width: 86px;
   display: block;
-  min-height: 100vh;
+  block-size: 100dvh;
+  min-block-size: 100dvh;
+  overflow: hidden;
   background: #ebe4ea;
   color: #1c2434;
 }
@@ -9,7 +11,9 @@
 .app-shell {
   display: grid;
   grid-template-columns: var(--app-shell-sidebar-width) minmax(0, 1fr);
-  min-height: 100vh;
+  block-size: 100dvh;
+  min-block-size: 100dvh;
+  overflow: hidden;
 }
 
 .app-shell-sidebar {
@@ -17,7 +21,9 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  block-size: 100dvh;
   padding: 16px 0 18px;
+  overflow: hidden;
   background: #8b66b3;
 }
 
@@ -243,12 +249,25 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
+  block-size: 100dvh;
+  min-block-size: 100dvh;
+  overflow: hidden;
 }
 
 .app-shell-content {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  flex: 1;
+  min-block-size: 0;
   padding: 0;
+  overflow: hidden;
   background: #ebe4ea;
+}
+
+.app-shell-content > * {
+  flex: 1 1 auto;
+  min-block-size: 0;
 }
 
 @media (max-width: 920px) {

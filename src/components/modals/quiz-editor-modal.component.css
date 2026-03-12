@@ -1,11 +1,11 @@
 :host {
-  --kp-primary: #6c4cff;
-  --kp-primary-strong: #5737e7;
-  --kp-primary-soft: #f3f0ff;
+  --kp-primary: #8b66b3;
+  --kp-primary-strong: #74519b;
+  --kp-primary-soft: #f1ebf6;
   --kp-border: #d9deea;
   --kp-border-strong: #c3cad9;
-  --kp-surface: #ffffff;
-  --kp-surface-muted: #f6f8fc;
+  --kp-surface: #fefcff;
+  --kp-surface-muted: #f8f4f8;
   --kp-text: #1c2434;
   --kp-text-muted: #667085;
   display: block;
@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgb(15 23 42 / 0.56);
+  background: rgb(85 72 92 / 0.22);
 }
 
 .quiz-editor-panel {

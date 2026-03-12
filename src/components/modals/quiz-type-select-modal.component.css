@@ -1,8 +1,8 @@
 :host {
-  --kp-primary: #6c4cff;
-  --kp-primary-soft: #f3f0ff;
+  --kp-primary: #8b66b3;
+  --kp-primary-soft: #f1ebf6;
   --kp-border: #d9deea;
-  --kp-surface: #ffffff;
+  --kp-surface: #fefcff;
   --kp-text: #1c2434;
   --kp-text-muted: #667085;
   display: block;
@@ -16,7 +16,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgb(15 23 42 / 0.56);
+  background: rgb(85 72 92 / 0.22);
 }
 
 .selection-modal-panel {

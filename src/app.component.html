@@ -1,74 +1,74 @@
-<div class="app-shell">
-  <aside class="app-shell-sidebar">
-    <div class="app-shell-sidebar-top">
-      <button class="app-shell-logo-button" aria-label="Kee">
-        <span class="material-symbols-outlined">gesture</span>
-      </button>
-    </div>
-
-    <nav class="app-shell-rail" aria-label="Menu lateral principal">
-      @for (item of primaryRailItems; track item.label) {
-        <button class="app-shell-rail-item" [class.is-active]="item.active">
-          <span class="material-symbols-outlined app-shell-rail-icon">{{ item.icon }}</span>
-          <span class="app-shell-rail-label">{{ item.label }}</span>
-        </button>
-      }
-    </nav>
-
-    <div class="app-shell-rail app-shell-rail-bottom">
-      @for (item of secondaryRailItems; track item.label) {
-        <button class="app-shell-rail-item" [class.is-active]="item.active">
-          <span class="material-symbols-outlined app-shell-rail-icon">{{ item.icon }}</span>
-          <span class="app-shell-rail-label">{{ item.label }}</span>
-        </button>
-      }
-    </div>
-  </aside>
-
-  <main class="app-shell-main">
-    <header class="app-shell-topbar">
-      <div class="app-shell-topbar-leading">
-        <button class="app-shell-topbar-menu" aria-label="Menu">
-          <span class="material-symbols-outlined">menu</span>
-        </button>
-
-        <label class="app-shell-search">
-          <span class="material-symbols-outlined">search</span>
-          <input type="text" value="Buscar cursos, trilhas, eventos..." aria-label="Busca" readonly>
-        </label>
-      </div>
-
-      <div class="app-shell-topbar-actions">
-        <button class="app-shell-icon-button" (click)="toggleStoryMap()" aria-label="Story map">
-          <span class="material-symbols-outlined">add</span>
-        </button>
-        <button class="app-shell-icon-button" (click)="toggleFullScreen()" aria-label="Alternar tela cheia">
-          <span class="material-symbols-outlined">{{ isFullScreen() ? 'fullscreen_exit' : 'fullscreen' }}</span>
-        </button>
-        <button class="app-shell-icon-button" aria-label="Notificacoes">
-          <span class="material-symbols-outlined">notifications</span>
-        </button>
-        <button class="app-shell-icon-button" aria-label="Pontuacao">
-          <span class="material-symbols-outlined">insert_chart</span>
-        </button>
-        <button class="app-shell-icon-button" aria-label="Aplicacoes">
-          <span class="material-symbols-outlined">apps</span>
-        </button>
-        <div class="app-shell-topbar-divider" aria-hidden="true"></div>
-        <div class="app-shell-points">
-          <span class="app-shell-points-value">0</span>
-          <span class="app-shell-points-label">PONTOS</span>
+@switch(viewState()) {
+  @case('courseWizard') {
+    <div class="app-shell">
+      <aside class="app-shell-sidebar">
+        <div class="app-shell-sidebar-top">
+          <button class="app-shell-logo-button" aria-label="Kee">
+            <span class="material-symbols-outlined">gesture</span>
+          </button>
         </div>
-        <div class="app-shell-kee-badge">
-          <span>kee</span>
-          <i></i>
-        </div>
-      </div>
-    </header>
 
-    <section class="app-shell-content">
-      @switch(viewState()) {
-        @case('courseWizard') {
+        <nav class="app-shell-rail" aria-label="Menu lateral principal">
+          @for (item of primaryRailItems; track item.label) {
+            <button class="app-shell-rail-item" [class.is-active]="item.active">
+              <span class="material-symbols-outlined app-shell-rail-icon">{{ item.icon }}</span>
+              <span class="app-shell-rail-label">{{ item.label }}</span>
+            </button>
+          }
+        </nav>
+
+        <div class="app-shell-rail app-shell-rail-bottom">
+          @for (item of secondaryRailItems; track item.label) {
+            <button class="app-shell-rail-item" [class.is-active]="item.active">
+              <span class="material-symbols-outlined app-shell-rail-icon">{{ item.icon }}</span>
+              <span class="app-shell-rail-label">{{ item.label }}</span>
+            </button>
+          }
+        </div>
+      </aside>
+
+      <main class="app-shell-main">
+        <header class="app-shell-topbar">
+          <div class="app-shell-topbar-leading">
+            <button class="app-shell-topbar-menu" aria-label="Menu">
+              <span class="material-symbols-outlined">menu</span>
+            </button>
+
+            <label class="app-shell-search">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" value="Buscar cursos, trilhas, eventos..." aria-label="Busca" readonly>
+            </label>
+          </div>
+
+          <div class="app-shell-topbar-actions">
+            <button class="app-shell-icon-button" (click)="toggleStoryMap()" aria-label="Story map">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+            <button class="app-shell-icon-button" (click)="toggleFullScreen()" aria-label="Alternar tela cheia">
+              <span class="material-symbols-outlined">{{ isFullScreen() ? 'fullscreen_exit' : 'fullscreen' }}</span>
+            </button>
+            <button class="app-shell-icon-button" aria-label="Notificacoes">
+              <span class="material-symbols-outlined">notifications</span>
+            </button>
+            <button class="app-shell-icon-button" aria-label="Pontuacao">
+              <span class="material-symbols-outlined">insert_chart</span>
+            </button>
+            <button class="app-shell-icon-button" aria-label="Aplicacoes">
+              <span class="material-symbols-outlined">apps</span>
+            </button>
+            <div class="app-shell-topbar-divider" aria-hidden="true"></div>
+            <div class="app-shell-points">
+              <span class="app-shell-points-value">0</span>
+              <span class="app-shell-points-label">PONTOS</span>
+            </div>
+            <div class="app-shell-kee-badge">
+              <span>kee</span>
+              <i></i>
+            </div>
+          </div>
+        </header>
+
+        <section class="app-shell-content">
           @if(courseData(); as course) {
             <app-course-wizard
               [initialCourseData]="course"
@@ -78,23 +78,23 @@
               (preview)="handleCoursePreview($event)"
             />
           }
-        }
-        @case('coursePlayer') {
-          @if(courseData(); as course) {
-            <app-course-player
-              [course]="course"
-              [isFullScreen]="isFullScreen()"
-              [theme]="theme()"
-              (exit)="exitCoursePlayer()"
-              (toggleFullScreen)="toggleFullScreen()"
-              (toggleTheme)="toggleTheme()"
-            />
-          }
-        }
-      }
-    </section>
-  </main>
-</div>
+        </section>
+      </main>
+    </div>
+  }
+  @case('coursePlayer') {
+    @if(courseData(); as course) {
+      <app-course-player
+        [course]="course"
+        [isFullScreen]="isFullScreen()"
+        [theme]="theme()"
+        (exit)="exitCoursePlayer()"
+        (toggleFullScreen)="toggleFullScreen()"
+        (toggleTheme)="toggleTheme()"
+      />
+    }
+  }
+}
 
 @if (showStoryMap()) {
   <app-story-mapping-modal

@@ -67,7 +67,7 @@
       <section class="wizard-step-shell">
       <h2 class="wizard-step-title">Imagens</h2>
       <p class="wizard-step-subtitle">Escolha as imagens para a exibição do banner e para o card do curso</p>
-      <div class="wizard-form-surface">
+      <div class="wizard-form-surface wizard-form-surface-plain">
         <div class="wizard-inline-tabs">
             <nav class="wizard-inline-tabs-nav" aria-label="Tabs">
                 <button (click)="imageTab.set('banner')" class="wizard-inline-tab" [class.is-active]="imageTab() === 'banner'">Banner</button>
@@ -218,7 +218,7 @@
         <div class="w-full">
           <div class="space-y-4">
             @for(topic of course().topics; track topic.id) {
-              <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"
+              <div class="wizard-topic-card"
                 (dragover)="onDragOver($event, topic.id)"
                 (dragleave)="onDragLeave($event)"
                 (drop)="onDrop($event, topic.id)">
@@ -241,7 +241,7 @@
                       <span class="material-symbols-outlined">more_vert</span>
                     </button>
                     @if (activeTopicMenu() === topic.id) {
-                        <div class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-md shadow-xl z-10 ring-1 ring-black ring-opacity-5 dark:ring-1 dark:ring-white dark:ring-opacity-10" (click)="$event.stopPropagation()">
+                        <div class="wizard-context-menu absolute right-0 mt-2 w-56" (click)="$event.stopPropagation()">
                             <a (click)="startTopicEdit(topic.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">edit</span>Renomear</a>
                             <a (click)="duplicateTopic(topic.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">content_copy</span>Duplicar</a>
                             <div class="border-t my-1 dark:border-gray-700"></div>
@@ -258,7 +258,7 @@
                   <div class="p-3 pl-12 space-y-2 drop-zone border-t border-gray-200 dark:border-gray-700">
                       @for(content of topic.contents; track content.id) {
                         @if (content.type === 'quiz' && content.quizData?.quizType === 'survey') {
-                          <div class="p-4 rounded-lg bg-white dark:bg-gray-700 border dark:border-gray-600">
+                          <div class="wizard-topic-content-card">
                             <div class="flex items-center justify-between">
                               <div class="flex items-center gap-4">
                                 <span class="material-symbols-outlined text-2xl text-purple-600 dark:text-purple-400">poll</span>
@@ -266,7 +266,7 @@
                                   <p class="font-semibold">{{ content.title }}</p>
                                   <p class="text-xs text-gray-500 dark:text-gray-400">17 de novembro de 2025</p>
                                 </div>
-                                <span class="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 text-xs font-bold px-2 py-0.5 rounded-full">
+                                <span class="wizard-topic-badge">
                                   Pesquisa
                                 </span>
                               </div>
@@ -290,7 +290,7 @@
                           </div>
                         } @else {
                           <div 
-                              class="flex items-center p-2 rounded-md bg-white dark:bg-gray-700 border dark:border-gray-600 group"
+                              class="wizard-content-row group"
                               draggable="true"
                               (dragstart)="onDragStart($event, 'content', topic.id, content.id)"
                               (dragend)="onDragEnd($event)">
@@ -319,7 +319,7 @@
                                       <span class="material-symbols-outlined text-base">more_vert</span>
                                   </button>
                                   @if (activeContentMenu() === content.id) {
-                                      <div class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-md shadow-xl z-10 ring-1 ring-black ring-opacity-5 dark:ring-1 dark:ring-white dark:ring-opacity-10" (click)="$event.stopPropagation()">
+                                      <div class="wizard-context-menu absolute right-0 mt-2 w-56" (click)="$event.stopPropagation()">
                                           @if (content.type === 'quiz') {
                                              <a (click)="previewQuiz(content.quizData!)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">visibility</span>Pré-visualizar</a>
                                           } @else {
@@ -347,7 +347,7 @@
                             </button>
                             @if (activeAddContentMenu() === topic.id) {
                                 <div (click)="activeAddContentMenu.set(null)" class="fixed inset-0 z-10"></div>
-                                <div class="absolute left-0 w-72 bg-white dark:bg-gray-900 rounded-md shadow-lg z-20 ring-1 ring-black ring-opacity-5 dark:ring-1 dark:ring-white dark:ring-opacity-10 py-1"
+                                <div class="wizard-context-menu absolute left-0 w-72 py-1"
                                     [class.bottom-full]="addContentMenuDirection() === 'up'"
                                     [class.mb-2]="addContentMenuDirection() === 'up'"
                                     [class.top-full]="addContentMenuDirection() === 'down'"
