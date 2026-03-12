@@ -1,5 +1,5 @@
 :host {
-  --app-shell-sidebar-width: 86px;
+  --app-shell-sidebar-width: 112px;
   display: block;
   block-size: 100dvh;
   min-block-size: 100dvh;
@@ -97,7 +97,7 @@
 
 .app-shell-rail-label {
   display: block;
-  max-width: 58px;
+  max-width: 72px;
   line-height: 1.2;
   text-align: center;
   margin-inline: auto;
@@ -108,7 +108,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  min-height: 52px;
+  min-height: 64px;
   padding: 0 16px 0 18px;
   border-bottom: 1px solid rgb(28 36 52 / 0.06);
   background: #f3edf2;
