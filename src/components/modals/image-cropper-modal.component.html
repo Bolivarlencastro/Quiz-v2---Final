@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="p-4 border-b dark:border-gray-700 flex justify-between items-center shrink-0">
       <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Ajustar Imagem</h2>
-      <button (click)="close.emit()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400">
+      <button (click)="close.emit()" class="kp-icon-btn">
         <span class="material-symbols-outlined">close</span>
       </button>
     </header>
@@ -77,8 +77,8 @@
     
     <!-- Footer -->
     <footer class="p-4 bg-gray-50 dark:bg-gray-800/50 border-t dark:border-gray-700 flex justify-end items-center gap-4 shrink-0">
-      <button (click)="close.emit()" class="font-semibold py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition">Cancelar</button>
-      <button (click)="confirmCrop()" [disabled]="!imageLoaded()" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-purple-700 transition disabled:opacity-50">Confirmar Recorte</button>
+      <button (click)="close.emit()" class="kp-btn kp-btn-secondary">Cancelar</button>
+      <button (click)="confirmCrop()" [disabled]="!imageLoaded()" class="kp-btn kp-btn-primary">Confirmar Recorte</button>
     </footer>
   </div>
 </div>

@@ -12,9 +12,10 @@
   @switch (currentStep()) {
     @case (1) {
       <!-- Step 1: Information -->
-      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Informações</h2>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">Preencha os campos com todas as informações</p>
-      <div class="space-y-6">
+      <section class="wizard-step-shell">
+      <h2 class="wizard-step-title">Informações</h2>
+      <p class="wizard-step-subtitle">Preencha os campos com todas as informações</p>
+      <div class="space-y-6 wizard-form-surface">
         <div class="grid grid-cols-2 gap-6">
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome *</label>
@@ -59,16 +60,18 @@
           <p class="text-right text-xs text-gray-500 dark:text-gray-400 mt-1">{{ course().description.length }}/250</p>
         </div>
       </div>
+      </section>
     }
     @case (2) {
       <!-- Step 2: Images -->
-      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Imagens</h2>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">Escolha as imagens para a exibição do banner e para o card do curso</p>
-      <div>
-        <div class="border-b border-gray-200 dark:border-gray-700">
-            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                <button (click)="imageTab.set('banner')" [class.border-purple-500]="imageTab() === 'banner'" [class.dark:border-purple-400]="imageTab() === 'banner'" [class.text-purple-600]="imageTab() === 'banner'" [class.dark:text-purple-400]="imageTab() === 'banner'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Banner</button>
-                <button (click)="imageTab.set('card')" [class.border-purple-500]="imageTab() === 'card'" [class.dark:border-purple-400]="imageTab() === 'card'" [class.text-purple-600]="imageTab() === 'card'" [class.dark:text-purple-400]="imageTab() === 'card'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Card</button>
+      <section class="wizard-step-shell">
+      <h2 class="wizard-step-title">Imagens</h2>
+      <p class="wizard-step-subtitle">Escolha as imagens para a exibição do banner e para o card do curso</p>
+      <div class="wizard-form-surface">
+        <div class="wizard-inline-tabs">
+            <nav class="wizard-inline-tabs-nav" aria-label="Tabs">
+                <button (click)="imageTab.set('banner')" class="wizard-inline-tab" [class.is-active]="imageTab() === 'banner'">Banner</button>
+                <button (click)="imageTab.set('card')" class="wizard-inline-tab" [class.is-active]="imageTab() === 'card'">Card</button>
             </nav>
         </div>
         <div class="mt-6">
@@ -77,11 +80,11 @@
               @if (bannerPreview(); as banner) {
                 <img [src]="banner" alt="Banner preview" class="w-full h-full object-cover rounded-lg">
                 <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 rounded-lg">
-                  <button (click)="openImageUploadModal('banner')" class="flex items-center gap-2 bg-white/90 text-gray-800 font-semibold py-2 px-4 rounded-full hover:bg-white transition-colors">
+                  <button (click)="openImageUploadModal('banner')" class="kp-btn kp-btn-secondary">
                     <span class="material-symbols-outlined">edit</span>
                     Alterar Imagem
                   </button>
-                  <button (click)="removeImage('banner')" class="flex items-center gap-2 bg-white/90 text-red-600 font-semibold py-2 px-4 rounded-full hover:bg-white transition-colors">
+                  <button (click)="removeImage('banner')" class="kp-btn kp-btn-secondary">
                     <span class="material-symbols-outlined">delete</span>
                     Remover
                   </button>
@@ -100,11 +103,11 @@
               @if (cardPreview(); as card) {
                 <img [src]="card" alt="Card preview" class="w-full h-full object-cover rounded-lg">
                 <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 rounded-lg">
-                  <button (click)="openImageUploadModal('card')" class="flex items-center gap-2 bg-white/90 text-gray-800 font-semibold py-2 px-4 rounded-full hover:bg-white transition-colors">
+                  <button (click)="openImageUploadModal('card')" class="kp-btn kp-btn-secondary">
                     <span class="material-symbols-outlined">edit</span>
                     Alterar Imagem
                   </button>
-                  <button (click)="removeImage('card')" class="flex items-center gap-2 bg-white/90 text-red-600 font-semibold py-2 px-4 rounded-full hover:bg-white transition-colors">
+                  <button (click)="removeImage('card')" class="kp-btn kp-btn-secondary">
                     <span class="material-symbols-outlined">delete</span>
                     Remover
                   </button>
@@ -120,17 +123,20 @@
           }
         </div>
       </div>
+      </section>
     }
     @case (3) {
       <!-- Step 3: Settings -->
-      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Configurações</h2>
-      <p class="text-gray-600 dark:text-gray-400 mb-8">Ative ou desative funções para esse curso</p>
+      <section class="wizard-step-shell">
+      <h2 class="wizard-step-title">Configurações</h2>
+      <p class="wizard-step-subtitle">Ative ou desative funções para esse curso</p>
 
-      <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
-          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-              <button (click)="settingsTab.set('settings')" [class.border-purple-500]="settingsTab() === 'settings'" [class.dark:border-purple-400]="settingsTab() === 'settings'" [class.text-purple-600]="settingsTab() === 'settings'" [class.dark:text-purple-400]="settingsTab() === 'settings'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Configurações</button>
-              <button (click)="settingsTab.set('groups')" [class.border-purple-500]="settingsTab() === 'groups'" [class.dark:border-purple-400]="settingsTab() === 'groups'" [class.text-purple-600]="settingsTab() === 'groups'" [class.dark:text-purple-400]="settingsTab() === 'groups'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Grupos</button>
-              <button (click)="settingsTab.set('contributors')" [class.border-purple-500]="settingsTab() === 'contributors'" [class.dark:border-purple-400]="settingsTab() === 'contributors'" [class.text-purple-600]="settingsTab() === 'contributors'" [class.dark:text-purple-400]="settingsTab() === 'contributors'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400">Contribuidores</button>
+      <div class="wizard-form-surface">
+      <div class="wizard-inline-tabs">
+          <nav class="wizard-inline-tabs-nav" aria-label="Tabs">
+              <button (click)="settingsTab.set('settings')" class="wizard-inline-tab" [class.is-active]="settingsTab() === 'settings'">Configurações</button>
+              <button (click)="settingsTab.set('groups')" class="wizard-inline-tab" [class.is-active]="settingsTab() === 'groups'">Grupos</button>
+              <button (click)="settingsTab.set('contributors')" class="wizard-inline-tab" [class.is-active]="settingsTab() === 'contributors'">Contribuidores</button>
           </nav>
       </div>
 
@@ -186,20 +192,23 @@
           </div>
         }
       }
+      </div>
+      </section>
     }
     @case (4) {
       <!-- Step 4: Contents (Redesigned) -->
-      <div>
-         <header class="flex justify-between items-center mb-8">
+      <section class="wizard-step-shell">
+      <div class="wizard-form-surface">
+         <header class="wizard-content-header">
           <div>
-            <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-1">Conteúdos</h2>
-            <p class="text-gray-600 dark:text-gray-400">Construa a estrutura do seu curso, adicionando tópicos e conteúdos.</p>
+            <h2 class="wizard-step-title wizard-step-title-compact">Conteúdos</h2>
+            <p class="wizard-step-subtitle wizard-step-subtitle-compact">Construa a estrutura do seu curso, adicionando tópicos e conteúdos.</p>
           </div>
-          <div class="flex items-center gap-4">
-             <button (click)="previewCourse()" [disabled]="!hasContent()" class="bg-transparent text-purple-600 dark:text-purple-400 font-semibold py-2 px-4 rounded-full border border-purple-600 dark:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <div class="wizard-content-actions">
+             <button (click)="previewCourse()" [disabled]="!hasContent()" class="wizard-button wizard-button-secondary">
                 Visualizar Como Usuário
             </button>
-            <button (click)="addTopic()" class="flex items-center gap-2 bg-purple-600 text-white font-semibold py-2 px-4 rounded-full hover:bg-purple-700 transition">
+            <button (click)="addTopic()" class="wizard-button wizard-button-primary wizard-button-icon">
               <span class="material-symbols-outlined text-xl">add</span>
               Novo Tópico
             </button>
@@ -228,7 +237,7 @@
                     }
                   </div>
                   <div class="relative">
-                    <button (click)="toggleTopicMenu(topic.id)" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                    <button (click)="toggleTopicMenu(topic.id)" class="wizard-icon-button">
                       <span class="material-symbols-outlined">more_vert</span>
                     </button>
                     @if (activeTopicMenu() === topic.id) {
@@ -240,7 +249,7 @@
                         </div>
                     }
                   </div>
-                   <button (click)="toggleTopicExpansion(topic.id)" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                   <button (click)="toggleTopicExpansion(topic.id)" class="wizard-icon-button">
                       <span class="material-symbols-outlined transition-transform" [class.rotate-180]="!isTopicExpanded(topic.id)">expand_more</span>
                   </button>
                 </header>
@@ -262,13 +271,13 @@
                                 </span>
                               </div>
                               <div class="flex items-center gap-2">
-                                <button (click)="openAddQuestionModal(content)" class="flex items-center gap-2 text-sm font-semibold border border-gray-300 dark:border-gray-500 rounded-full px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                <button (click)="openAddQuestionModal(content)" class="kp-btn kp-btn-secondary kp-btn-compact">
                                   <span class="material-symbols-outlined text-base">add</span> Pergunta
                                 </button>
                                 <select class="text-sm border border-gray-300 dark:border-gray-500 rounded-full px-3 py-1.5 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600"><option>1 dia após a...</option></select>
                                 <select class="text-sm border border-gray-300 dark:border-gray-500 rounded-full px-3 py-1.5 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600"><option>Manhã</option></select>
-                                <button (click)="editQuiz(topic.id, content.id)" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500"><span class="material-symbols-outlined text-base">edit</span></button>
-                                <button (click)="removeContentItem(topic.id, content.id)" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500"><span class="material-symbols-outlined text-base">delete</span></button>
+                                <button (click)="editQuiz(topic.id, content.id)" class="kp-icon-btn"><span class="material-symbols-outlined text-base">edit</span></button>
+                                <button (click)="removeContentItem(topic.id, content.id)" class="kp-icon-btn kp-icon-btn-danger"><span class="material-symbols-outlined text-base">delete</span></button>
                               </div>
                             </div>
                              @if ((content.quizData?.questions || []).length === 0) {
@@ -301,12 +310,12 @@
                               </p>
                               <div class="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
                                   @if (content.type === 'quiz') {
-                                    <button (click)="editQuiz(topic.id, content.id)" class="font-semibold text-sm py-1 px-3 rounded-full border bg-white dark:bg-gray-600 dark:border-gray-500 dark:hover:bg-gray-500 hover:bg-gray-100 transition-colors mx-2">Editar Quiz</button>
+                                    <button (click)="editQuiz(topic.id, content.id)" class="kp-btn kp-btn-secondary kp-btn-compact mx-2">Editar Quiz</button>
                                   } @else {
-                                    <button class="font-semibold text-sm py-1 px-3 rounded-full border bg-white dark:bg-gray-600 dark:border-gray-500 dark:hover:bg-gray-500 hover:bg-gray-100 transition-colors mx-2">Editar</button>
+                                    <button class="kp-btn kp-btn-secondary kp-btn-compact mx-2">Editar</button>
                                   }
                                   <div class="relative">
-                                  <button (click)="toggleContentMenu(content.id)" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400">
+                                  <button (click)="toggleContentMenu(content.id)" class="kp-icon-btn">
                                       <span class="material-symbols-outlined text-base">more_vert</span>
                                   </button>
                                   @if (activeContentMenu() === content.id) {
@@ -332,7 +341,7 @@
                       }
                       <div class="relative mt-2 flex items-center gap-2">
                          <div class="relative flex-grow">
-                            <button (click)="toggleAddContentMenu(topic.id, $event)" class="w-full text-left flex items-center gap-2 p-2 rounded-full text-gray-600 dark:text-gray-400 font-medium hover:bg-purple-50 dark:hover:bg-purple-500/10 hover:text-purple-700 dark:hover:text-purple-400 transition-colors">
+                            <button (click)="toggleAddContentMenu(topic.id, $event)" class="wizard-text-button">
                                 <span class="material-symbols-outlined">add_circle</span>
                                 Adicionar Conteúdo
                             </button>
@@ -356,7 +365,7 @@
                          <button 
                             (click)="generateQuickQuiz(topic)"
                             [disabled]="isQuickQuizDisabled(topic)"
-                            class="flex-shrink-0 flex items-center gap-2 p-2 rounded-full text-purple-600 dark:text-purple-400 font-medium hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent">
+                            class="wizard-text-button flex-shrink-0">
                             @if (quickQuizLoadingTopicId() === topic.id) {
                               <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -379,17 +388,18 @@
           </div>
         </div>
       </div>
+      </section>
     }
     @case (5) {
       <!-- Step 5: Finalize -->
-      <div class="flex flex-col items-center justify-center h-full text-center">
+      <div class="wizard-finish-screen">
          <div class="relative mb-4">
             <span class="material-symbols-outlined text-9xl text-gray-300 dark:text-gray-600">circle</span>
             <span class="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">Em Criação</span>
          </div>
-         <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Curso criado com sucesso</h2>
-         <p class="text-gray-600 dark:text-gray-400 max-w-md mb-8">Seu curso será processado e em seguida estará pronto para revisão.</p>
-         <button (click)="publishCourse()" class="bg-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-purple-700 transition">Publicar curso</button>
+         <h2 class="wizard-step-title">Curso criado com sucesso</h2>
+         <p class="wizard-step-subtitle wizard-finish-copy">Seu curso será processado e em seguida estará pronto para revisão.</p>
+         <button (click)="publishCourse()" class="wizard-button wizard-button-primary">Publicar curso</button>
       </div>
     }
   }
@@ -416,22 +426,22 @@
 
 <!-- Use for Card Confirmation Modal -->
 @if(showUseForCardConfirmModal()) {
-  <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fade-in">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 m-4 animate-scale-up" (click)="$event.stopPropagation()">
-      <div class="text-center">
-        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/50">
-          <span class="material-symbols-outlined text-3xl text-purple-600 dark:text-purple-500">photo_library</span>
+  <div class="wizard-dialog-backdrop animate-fade-in">
+    <div class="wizard-dialog-panel animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="wizard-dialog-copy">
+        <div class="wizard-dialog-icon">
+          <span class="material-symbols-outlined">photo_library</span>
         </div>
-        <h3 class="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-200">Reaproveitar Imagem</h3>
-        <p class="mt-2 text-gray-600 dark:text-gray-400">
+        <h3 class="wizard-dialog-title">Reaproveitar imagem</h3>
+        <p class="wizard-dialog-text">
           Deseja usar esta mesma imagem para o card do curso? Você poderá ajustar o recorte para o formato de card.
         </p>
       </div>
-      <div class="mt-8 grid grid-cols-2 gap-4">
-        <button (click)="handleDeclineUseForCard()" class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+      <div class="wizard-dialog-actions">
+        <button (click)="handleDeclineUseForCard()" class="wizard-button wizard-button-secondary">
           Não, obrigado
         </button>
-        <button (click)="handleConfirmUseForCard()" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full hover:bg-purple-700 transition">
+        <button (click)="handleConfirmUseForCard()" class="wizard-button wizard-button-primary">
           Sim, usar
         </button>
       </div>
@@ -502,17 +512,8 @@
 
 <!-- Toast Notifications -->
 @if(showPublishToast()) {
-  <div class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-lg flex items-center animate-fade-in-out z-50">
+  <div class="wizard-toast animate-fade-in-out">
     <span class="material-symbols-outlined mr-2">check_circle</span>
     <span>Curso publicado com sucesso!</span>
   </div>
 }
-<style>
-  .animate-fade-in-out {
-    animation: fadeInOut 3s ease-in-out forwards;
-  }
-  @keyframes fadeInOut {
-    0%, 100% { opacity: 0; transform: translateY(20px); }
-    10%, 90% { opacity: 1; transform: translateY(0); }
-  }
-</style>

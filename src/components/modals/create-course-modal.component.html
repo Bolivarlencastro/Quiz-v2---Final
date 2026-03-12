@@ -1,39 +1,33 @@
-<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fade-in" (click)="close.emit()">
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl p-8 m-4 animate-scale-up" (click)="$event.stopPropagation()">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200">Como você quer criar o curso?</h2>
-      <button (click)="close.emit()" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
-        <span class="material-symbols-outlined text-3xl">close</span>
+<div class="selection-modal-backdrop animate-fade-in" (click)="close.emit()">
+  <div class="selection-modal-panel selection-modal-panel-wide animate-scale-up" (click)="$event.stopPropagation()">
+    <div class="selection-modal-header">
+      <div>
+        <h2 class="selection-modal-title">Como voce quer criar o curso?</h2>
+        <p class="selection-modal-subtitle">Escolha uma abordagem para iniciar o fluxo sem alterar o comportamento do prototipo.</p>
+      </div>
+      <button (click)="close.emit()" class="selection-modal-close kp-icon-btn">
+        <span class="material-symbols-outlined">close</span>
       </button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- Option A: Start from Scratch -->
-      <div (click)="startFromScratch.emit()" class="group p-6 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col items-center text-center">
-        <span class="material-symbols-outlined text-6xl text-purple-500 dark:text-purple-400 mb-4">description</span>
-        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Começar do Zero</h3>
-        <p class="text-gray-600 dark:text-gray-400">Ideal para projetos novos. Crie um curso em branco e adicione seus conteúdos passo a passo.</p>
+    <div class="selection-grid selection-grid-three">
+      <div (click)="startFromScratch.emit()" class="selection-card">
+        <span class="material-symbols-outlined selection-card-icon">description</span>
+        <h3 class="selection-card-title">Comecar do zero</h3>
+        <p class="selection-card-text">Crie um curso em branco e adicione seus conteudos passo a passo.</p>
       </div>
 
-      <!-- Option B: Create with AI -->
-      <div (click)="useAi.emit()" class="group p-6 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col items-center text-center">
-        <span class="material-symbols-outlined text-6xl text-purple-500 dark:text-purple-400 mb-4">auto_awesome</span>
-        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Criar com Inteligência Artificial</h3>
-        <p class="text-gray-600 dark:text-gray-400">Descreva o curso que você deseja e deixe nossa IA criar uma estrutura inicial para você.</p>
+      <div (click)="useAi.emit()" class="selection-card">
+        <span class="material-symbols-outlined selection-card-icon">auto_awesome</span>
+        <h3 class="selection-card-title">Criar com IA</h3>
+        <p class="selection-card-text">Descreva o curso desejado e gere uma estrutura inicial automaticamente.</p>
       </div>
 
-      <!-- Option C: Import from a File -->
-      <div (click)="importFile.emit()" class="group p-6 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col items-center text-center">
-        <span class="material-symbols-outlined text-6xl text-purple-500 dark:text-purple-400 mb-4">file_upload</span>
-        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Importar de um Arquivo</h3>
-        <p class="text-gray-600 dark:text-gray-400">Ideal para conteúdo existente. Traga um curso pronto de um pacote SCORM ou de um arquivo CSV.</p>
+      <div (click)="importFile.emit()" class="selection-card">
+        <span class="material-symbols-outlined selection-card-icon">file_upload</span>
+        <h3 class="selection-card-title">Importar arquivo</h3>
+        <p class="selection-card-text">Traga um curso existente a partir de um pacote SCORM ou arquivo CSV.</p>
       </div>
     </div>
   </div>
 </div>
-<style>
-  .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-  .animate-scale-up { animation: scaleUp 0.3s ease-out forwards; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-</style>

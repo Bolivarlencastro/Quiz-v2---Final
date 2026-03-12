@@ -1,25 +1,25 @@
-<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fade-in" (click)="close.emit()">
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col m-4 animate-scale-up" (click)="$event.stopPropagation()">
+<div class="quiz-editor-backdrop animate-fade-in" (click)="close.emit()">
+  <div class="quiz-editor-panel animate-scale-up" (click)="$event.stopPropagation()">
     <!-- Header -->
-    <header class="p-6 border-b dark:border-gray-700 flex justify-between items-center shrink-0">
+    <header class="quiz-editor-header">
       @if (viewState() === 'editor') {
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{ isEditing() ? 'Editar Quiz' : 'Criar Novo Quiz' }}</h2>
+        <h2 class="quiz-editor-title">{{ isEditing() ? 'Editar Quiz' : 'Criar Novo Quiz' }}</h2>
       } @else {
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Importar Questões de Planilha</h2>
+        <h2 class="quiz-editor-title">Importar Questoes de Planilha</h2>
       }
-      <button (click)="close.emit()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400">
+      <button (click)="close.emit()" class="quiz-editor-close kp-icon-btn">
         <span class="material-symbols-outlined">close</span>
       </button>
     </header>
 
     @if (viewState() === 'editor') {
       <!-- Tabs -->
-      <nav class="shrink-0 border-b border-gray-200 dark:border-gray-700 px-6">
-        <div class="-mb-px flex space-x-8">
-          <button (click)="activeTab.set('questions')" class="py-4 px-1 border-b-2 font-semibold text-sm" [class.border-purple-500]="activeTab() === 'questions'" [class.text-purple-600]="activeTab() === 'questions'" [class.dark:text-purple-400]="activeTab() === 'questions'" [class.border-transparent]="activeTab() !== 'questions'" [class.text-gray-500]="activeTab() !== 'questions'" [class.hover:border-gray-300]="activeTab() !== 'questions'">
+      <nav class="quiz-editor-tabs">
+        <div class="quiz-editor-tab-list">
+          <button (click)="activeTab.set('questions')" class="quiz-editor-tab" [class.is-active]="activeTab() === 'questions'">
             Questões
           </button>
-          <button (click)="activeTab.set('settings')" class="py-4 px-1 border-b-2 font-semibold text-sm" [class.border-purple-500]="activeTab() === 'settings'" [class.text-purple-600]="activeTab() === 'settings'" [class.dark:text-purple-400]="activeTab() === 'settings'" [class.border-transparent]="activeTab() !== 'settings'" [class.text-gray-500]="activeTab() !== 'settings'" [class.hover:border-gray-300]="activeTab() !== 'settings'">
+          <button (click)="activeTab.set('settings')" class="quiz-editor-tab" [class.is-active]="activeTab() === 'settings'">
             Configuração
           </button>
         </div>
@@ -27,7 +27,7 @@
     }
 
     <!-- Content -->
-    <main class="flex-1 overflow-y-auto p-6">
+    <main class="quiz-editor-content">
       @switch (viewState()) {
         @case ('editor') {
           @switch (activeTab()) {
@@ -41,16 +41,16 @@
                 <div class="border-t dark:border-gray-700 pt-6">
                   <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold">Questões</h3>
-                    <div class="flex items-center gap-2">
-                      <button (click)="switchToImportView()" [disabled]="!!editingQuestionId()" class="font-semibold py-2 px-4 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <div class="quiz-editor-toolbar">
+                      <button (click)="switchToImportView()" [disabled]="!!editingQuestionId()" class="quiz-editor-toolbar-button quiz-editor-toolbar-button-secondary">
                         <span class="material-symbols-outlined text-base">upload</span>
                         Importar de Planilha
                       </button>
-                      <button (click)="isBankOpen.set(true)" [disabled]="!!editingQuestionId()" class="font-semibold py-2 px-4 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" id="quiz-question-bank" [class.highlight-feature]="highlightedElementId() === 'quiz-question-bank'">
+                      <button (click)="isBankOpen.set(true)" [disabled]="!!editingQuestionId()" class="quiz-editor-toolbar-button quiz-editor-toolbar-button-secondary" id="quiz-question-bank" [class.highlight-feature]="highlightedElementId() === 'quiz-question-bank'">
                         <span class="material-symbols-outlined text-base">account_balance</span>
                         Adicionar do Banco
                       </button>
-                      <button (click)="addQuestion()" [disabled]="!!editingQuestionId()" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full hover:bg-purple-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                      <button (click)="addQuestion()" [disabled]="!!editingQuestionId()" class="quiz-editor-toolbar-button quiz-editor-toolbar-button-primary">
                         <span class="material-symbols-outlined">add</span> Adicionar Questão
                       </button>
                     </div>
@@ -86,7 +86,7 @@
                                                       Depois do texto
                                                   </label>
                                               </div>
-                                              <button (click)="removeImage()" class="mt-2 text-sm font-semibold text-red-600 hover:underline flex items-center gap-1">
+                                              <button (click)="removeImage()" class="kp-btn kp-btn-text kp-btn-compact mt-2">
                                                   <span class="material-symbols-outlined text-base">delete</span> Remover Imagem
                                               </button>
                                           </div>
@@ -109,13 +109,13 @@
                                       <div class="flex items-center gap-3">
                                         <input type="radio" [name]="formQuestion.id" [checked]="formQuestion.correctAnswerIndex === $index" (change)="setCorrectAlternative($index)" class="h-5 w-5 text-purple-600 focus:ring-purple-500 shrink-0">
                                         <input type="text" [value]="alt" (input)="updateAlternativeText($index, $event)" placeholder="Alternativa {{ $index + 1 }}" class="flex-1 p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 focus:ring-purple-500 focus:border-purple-500">
-                                        <button (click)="removeAlternative($index)" [disabled]="formQuestion.alternatives.length <= 2" class="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 text-red-500 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed">
+                                        <button (click)="removeAlternative($index)" [disabled]="formQuestion.alternatives.length <= 2" class="kp-icon-btn kp-icon-btn-danger">
                                           <span class="material-symbols-outlined text-base">delete</span>
                                         </button>
                                       </div>
                                     }
                                   </div>
-                                  <button (click)="addAlternative()" class="mt-3 text-sm font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1">
+                                  <button (click)="addAlternative()" class="quiz-editor-text-button mt-3">
                                     <span class="material-symbols-outlined text-base">add_circle</span> Adicionar Alternativa
                                   </button>
                                   <p class="text-xs text-gray-500 mt-2">Marque a alternativa correta.</p>
@@ -128,8 +128,8 @@
                                 </div>
                             </div>
                             <div class="mt-4 flex justify-end gap-2">
-                                <button (click)="cancelInlineEdit()" class="font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">Cancelar</button>
-                                <button (click)="saveInlineQuestion()" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full hover:bg-purple-700">Salvar Alterações</button>
+                                <button (click)="cancelInlineEdit()" class="quiz-editor-inline-action quiz-editor-inline-action-secondary">Cancelar</button>
+                                <button (click)="saveInlineQuestion()" class="quiz-editor-inline-action quiz-editor-inline-action-primary">Salvar Alterações</button>
                             </div>
                           </div>
                          }
@@ -152,9 +152,9 @@
                             <span class="truncate block">{{ stripHtml(question.questionText) || 'Questão sem título' }}</span>
                           </div>
                           <div class="flex items-center gap-2">
-                            <button (click)="editQuestion(question)" [disabled]="!!editingQuestionId()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 disabled:opacity-50"><span class="material-symbols-outlined text-base">edit</span></button>
-                            <button (click)="duplicateQuestion(question.id)" [disabled]="!!editingQuestionId()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 disabled:opacity-50"><span class="material-symbols-outlined text-base">content_copy</span></button>
-                            <button (click)="deleteQuestion(question.id)" [disabled]="!!editingQuestionId()" class="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 text-red-500 disabled:opacity-50"><span class="material-symbols-outlined text-base">delete</span></button>
+                            <button (click)="editQuestion(question)" [disabled]="!!editingQuestionId()" class="kp-icon-btn"><span class="material-symbols-outlined text-base">edit</span></button>
+                            <button (click)="duplicateQuestion(question.id)" [disabled]="!!editingQuestionId()" class="kp-icon-btn"><span class="material-symbols-outlined text-base">content_copy</span></button>
+                            <button (click)="deleteQuestion(question.id)" [disabled]="!!editingQuestionId()" class="kp-icon-btn kp-icon-btn-danger"><span class="material-symbols-outlined text-base">delete</span></button>
                           </div>
                         </div>
                       }
@@ -185,7 +185,7 @@
                                                     Depois do texto
                                                 </label>
                                             </div>
-                                            <button (click)="removeImage()" class="mt-2 text-sm font-semibold text-red-600 hover:underline flex items-center gap-1">
+                                            <button (click)="removeImage()" class="kp-btn kp-btn-text kp-btn-compact mt-2">
                                                 <span class="material-symbols-outlined text-base">delete</span> Remover Imagem
                                             </button>
                                         </div>
@@ -208,13 +208,13 @@
                                     <div class="flex items-center gap-3">
                                       <input type="radio" [name]="formQuestion.id" [checked]="formQuestion.correctAnswerIndex === $index" (change)="setCorrectAlternative($index)" class="h-5 w-5 text-purple-600 focus:ring-purple-500 shrink-0">
                                       <input type="text" [value]="alt" (input)="updateAlternativeText($index, $event)" placeholder="Alternativa {{ $index + 1 }}" class="flex-1 p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 focus:ring-purple-500 focus:border-purple-500">
-                                      <button (click)="removeAlternative($index)" [disabled]="formQuestion.alternatives.length <= 2" class="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 text-red-500 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed">
+                                      <button (click)="removeAlternative($index)" [disabled]="formQuestion.alternatives.length <= 2" class="kp-icon-btn kp-icon-btn-danger">
                                         <span class="material-symbols-outlined text-base">delete</span>
                                       </button>
                                     </div>
                                   }
                                 </div>
-                                <button (click)="addAlternative()" class="mt-3 text-sm font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1">
+                                <button (click)="addAlternative()" class="quiz-editor-text-button mt-3">
                                   <span class="material-symbols-outlined text-base">add_circle</span> Adicionar Alternativa
                                 </button>
                                 <p class="text-xs text-gray-500 mt-2">Marque a alternativa correta.</p>
@@ -227,8 +227,8 @@
                                 </div>
                           </div>
                           <div class="mt-4 flex justify-end gap-2">
-                              <button (click)="cancelInlineEdit()" class="font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">Cancelar</button>
-                              <button (click)="saveInlineQuestion()" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full hover:bg-purple-700">Adicionar Questão</button>
+                              <button (click)="cancelInlineEdit()" class="quiz-editor-inline-action quiz-editor-inline-action-secondary">Cancelar</button>
+                              <button (click)="saveInlineQuestion()" class="quiz-editor-inline-action quiz-editor-inline-action-primary">Adicionar Questão</button>
                           </div>
                         </div>
                       }
@@ -305,7 +305,7 @@
               Para importar múltiplas questões, baixe nosso modelo de planilha, preencha com seus dados e faça o upload do arquivo no formato <code class="bg-gray-100 dark:bg-gray-700 p-1 rounded text-sm font-mono">.csv</code>.
             </p>
 
-            <button (click)="downloadTemplate()" class="text-sm font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1">
+            <button (click)="downloadTemplate()" class="kp-btn kp-btn-text kp-btn-compact">
               <span class="material-symbols-outlined text-base">download</span> Baixar modelo de planilha
             </button>
 
@@ -342,13 +342,13 @@
     </main>
 
     <!-- Footer -->
-    <footer class="p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex justify-end items-center gap-4 shrink-0">
+    <footer class="quiz-editor-footer">
        @if (viewState() === 'editor') {
-        <button (click)="close.emit()" class="font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">Cancelar</button>
-        <button (click)="handlePublish()" [disabled]="!canPublish()" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-700 disabled:bg-purple-300 dark:disabled:bg-purple-800 disabled:cursor-not-allowed transition">Publicar Quiz</button>
+        <button (click)="close.emit()" class="quiz-editor-button quiz-editor-button-secondary">Cancelar</button>
+        <button (click)="handlePublish()" [disabled]="!canPublish()" class="quiz-editor-button quiz-editor-button-primary">Publicar Quiz</button>
       } @else {
-        <button (click)="switchToEditorView()" class="font-semibold py-2 px-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">Cancelar</button>
-        <button (click)="handleImport()" [disabled]="parsedQuestions().length === 0" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-full hover:bg-purple-700 disabled:bg-purple-300 dark:disabled:bg-purple-800 disabled:cursor-not-allowed transition">
+        <button (click)="switchToEditorView()" class="quiz-editor-button quiz-editor-button-secondary">Cancelar</button>
+        <button (click)="handleImport()" [disabled]="parsedQuestions().length === 0" class="quiz-editor-button quiz-editor-button-primary">
           Importar Questões
         </button>
       }
@@ -362,46 +362,3 @@
     (questionsSelected)="addQuestionsFromBank($event)"
   />
 }
-
-<style>
-  .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-  .animate-scale-up { animation: scaleUp 0.3s ease-out forwards; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-  .toggle {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 2.75rem;
-    height: 1.5rem;
-    border-radius: 9999px;
-    position: relative;
-    background-color: #e5e7eb; /* dark:bg-gray-600 */
-    transition: background-color .2s ease-in-out;
-  }
-  .dark .toggle { background-color: #4b5563; }
-  .toggle::after {
-    content: '';
-    position: absolute;
-    top: 0.125rem;
-    left: 0.125rem;
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 9999px;
-    background-color: white;
-    transition: transform .2s ease-in-out;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  }
-  .toggle:checked {
-    background-color: #a78bfa; /* purple-400 */
-  }
-   .dark .toggle:checked {
-    background-color: #8b5cf6; /* purple-500 */
-  }
-  .toggle:checked::after {
-    transform: translateX(1.25rem);
-  }
-  .toggle:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-</style>

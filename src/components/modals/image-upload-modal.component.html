@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="p-4 border-b dark:border-gray-700 flex justify-between items-center shrink-0">
       <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Selecionar Imagem para o {{ imageType() === 'banner' ? 'Banner' : 'Card' }}</h2>
-      <button (click)="close.emit()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400">
+      <button (click)="close.emit()" class="kp-icon-btn">
         <span class="material-symbols-outlined">close</span>
       </button>
     </header>
@@ -18,11 +18,12 @@
           { id: 'freepik', icon: 'collections', label: 'Freepik' },
           { id: 'drive', icon: 'cloud', label: 'Google Drive' }
         ]; track source.id) {
-          <button (click)="selectSource(source.id)" class="w-full flex items-center gap-3 p-3 rounded-lg text-left text-sm font-medium transition-colors"
+          <button (click)="selectSource(source.id)" class="kp-btn kp-btn-secondary kp-side-option-btn"
                   [class.bg-purple-100]="activeSource() === source.id" [class.dark:bg-purple-900/40]="activeSource() === source.id"
                   [class.text-purple-700]="activeSource() === source.id" [class.dark:text-purple-400]="activeSource() === source.id"
                   [class.text-gray-600]="activeSource() !== source.id" [class.dark:text-gray-300]="activeSource() !== source.id"
-                  [class.hover:bg-gray-200]="activeSource() !== source.id" [class.dark:hover:bg-gray-700]="activeSource() !== source.id">
+                  [class.hover:bg-gray-200]="activeSource() !== source.id" [class.dark:hover:bg-gray-700]="activeSource() !== source.id"
+                  [class.is-active]="activeSource() === source.id">
             <span class="material-symbols-outlined">{{ source.icon }}</span>
             <span>{{ source.label }}</span>
           </button>
@@ -113,7 +114,7 @@
                             <span class="material-symbols-outlined text-base mt-0.5">error</span>
                             <div>
                                 <p>{{ entry.error }}</p>
-                                <button (click)="regenerateImages(entry)" class="font-semibold underline mt-1">Tentar Novamente</button>
+                                <button (click)="regenerateImages(entry)" class="kp-btn kp-btn-text kp-btn-compact mt-1">Tentar Novamente</button>
                             </div>
                           </div>
                         </div>
@@ -136,7 +137,7 @@
                   <div class="relative bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <textarea [(ngModel)]="aiPrompt" (keydown)="handleKeydown($event)" (input)="adjustTextareaHeight($event)" rows="1" placeholder="Ex: Um robô andando de skate vermelho" class="w-full bg-transparent p-3 pr-28 resize-none border-none focus:ring-0 dark:text-gray-200 placeholder:text-gray-500"></textarea>
                     <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
-                      <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-600" (click)="generateImage()" [disabled]="isLoading() || !aiPrompt().trim()">
+                      <button class="kp-icon-btn" (click)="generateImage()" [disabled]="isLoading() || !aiPrompt().trim()">
                          @if (isLoading()) {
                             <div class="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
                          } @else {
@@ -161,9 +162,3 @@
     </div>
   </div>
 </div>
-<style>
-  .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-  .animate-scale-up { animation: scaleUp 0.3s ease-out forwards; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-</style>

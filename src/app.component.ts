@@ -163,10 +163,6 @@ export class AppComponent {
         }
     });
 
-    // Initialize theme based on system preference
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    this.theme.set(prefersDark ? 'dark' : 'light');
-
     // Effect to apply theme class to the document root
     effect(() => {
       if (this.theme() === 'dark') {

@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-quiz-type-select-modal',
   imports: [CommonModule],
   templateUrl: './quiz-type-select-modal.component.html',
+  styleUrl: './quiz-type-select-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizTypeSelectModalComponent {

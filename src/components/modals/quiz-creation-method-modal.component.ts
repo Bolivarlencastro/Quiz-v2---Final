@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-quiz-creation-method-modal',
   imports: [CommonModule],
   templateUrl: './quiz-creation-method-modal.component.html',
+  styleUrl: './quiz-creation-method-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizCreationMethodModalComponent {

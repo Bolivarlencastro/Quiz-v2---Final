@@ -17,6 +17,7 @@ type ViewState = 'editor' | 'import';
   selector: 'app-quiz-editor-modal',
   imports: [CommonModule, FormsModule, SimpleTextEditorComponent, TooltipDirective, QuestionBankModalComponent],
   templateUrl: './quiz-editor-modal.component.html',
+  styleUrl: './quiz-editor-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizEditorModalComponent {
