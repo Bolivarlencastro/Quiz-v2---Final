@@ -116,6 +116,7 @@ const STORY_MAP_MARKDOWN = `## GESTÃO DE QUIZZES
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
+  styleUrl: './app.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -126,6 +127,19 @@ const STORY_MAP_MARKDOWN = `## GESTÃO DE QUIZZES
 })
 export class AppComponent {
   private readonly document = inject(DOCUMENT);
+
+  readonly primaryRailItems = [
+    { icon: 'home', label: 'Home', active: false },
+    { icon: 'radio_button_checked', label: 'Pulses', active: false },
+    { icon: 'school', label: 'Matriculas', active: false },
+    { icon: 'bar_chart', label: 'Ranking', active: false },
+    { icon: 'groups', label: 'Painel do Lider', active: false },
+  ] as const;
+
+  readonly secondaryRailItems = [
+    { icon: 'settings', label: 'Admin', active: false },
+    { icon: 'help', label: 'Ajuda', active: false },
+  ] as const;
 
   viewState = signal<ViewState>('courseWizard');
   courseData = signal<Course | null>(JSON.parse(JSON.stringify(EMPTY_COURSE)));
