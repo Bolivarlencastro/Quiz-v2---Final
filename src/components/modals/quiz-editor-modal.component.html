@@ -1,363 +1,223 @@
-<div class="quiz-editor-backdrop animate-fade-in" (click)="close.emit()">
-  <div class="quiz-editor-panel animate-scale-up" (click)="$event.stopPropagation()">
-    <!-- Header -->
-    <header class="quiz-editor-header">
+<div class="quiz-editor-backdrop" (click)="close.emit()">
+  <div class="quiz-editor-panel" (click)="$event.stopPropagation()">
+    <div class="quiz-editor-shell">
+      <header class="quiz-editor-header">
+        <span class="quiz-editor-title">Editar Quiz</span>
+      </header>
+
+      <p class="quiz-editor-description">
+        Crie perguntas para os quizzes e adicione quantas respostas forem necessarias. Selecione a(s) resposta(s) correta(s) para cada pergunta. As perguntas sao apresentadas de forma aleatoria. A sequencia abaixo nao representa a ordem que o usuario visualiza o quiz.
+      </p>
+
       @if (viewState() === 'editor') {
-        <h2 class="quiz-editor-title">{{ isEditing() ? 'Editar Quiz' : 'Criar Novo Quiz' }}</h2>
-      } @else {
-        <h2 class="quiz-editor-title">Importar Questoes de Planilha</h2>
-      }
-      <button (click)="close.emit()" class="quiz-editor-close kp-icon-btn">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </header>
-
-    @if (viewState() === 'editor') {
-      <!-- Tabs -->
-      <nav class="quiz-editor-tabs">
-        <div class="quiz-editor-tab-list">
-          <button (click)="activeTab.set('questions')" class="quiz-editor-tab" [class.is-active]="activeTab() === 'questions'">
-            Questões
-          </button>
-          <button (click)="activeTab.set('settings')" class="quiz-editor-tab" [class.is-active]="activeTab() === 'settings'">
-            Configuração
-          </button>
+        <div class="quiz-editor-name-field">
+          <input
+            id="quizName"
+            type="text"
+            [ngModel]="quiz().name"
+            (ngModelChange)="updateField('name', $event)"
+            placeholder="Digite o nome do quiz"
+            class="quiz-editor-name-input">
         </div>
-      </nav>
-    }
+      }
 
-    <!-- Content -->
-    <main class="quiz-editor-content">
-      @switch (viewState()) {
-        @case ('editor') {
-          @switch (activeTab()) {
-            @case ('questions') {
-              <div class="space-y-6">
-                <div>
-                  <label for="quiz-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Título do Quiz *</label>
-                  <input type="text" id="quiz-title" [ngModel]="quiz().name" (ngModelChange)="updateField('name', $event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm">
-                </div>
+      @if (viewState() === 'editor') {
+        <nav class="quiz-editor-tabs" role="tablist" aria-label="Navegação do editor de quiz">
+          <div class="quiz-editor-tab-list">
+            <button
+              type="button"
+              class="quiz-editor-tab"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'questions'"
+              [class.is-active]="activeTab() === 'questions'"
+              (click)="activeTab.set('questions')">
+              Questoes
+            </button>
+            <button
+              type="button"
+              class="quiz-editor-tab"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'settings'"
+              [class.is-active]="activeTab() === 'settings'"
+              (click)="activeTab.set('settings')">
+              Configuracao
+            </button>
+          </div>
+        </nav>
+      }
 
-                <div class="border-t dark:border-gray-700 pt-6">
-                  <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold">Questões</h3>
-                    <div class="quiz-editor-toolbar">
-                      <button (click)="switchToImportView()" [disabled]="!!editingQuestionId()" class="quiz-editor-toolbar-button quiz-editor-toolbar-button-secondary">
-                        <span class="material-symbols-outlined text-base">upload</span>
-                        Importar de Planilha
-                      </button>
-                      <button (click)="isBankOpen.set(true)" [disabled]="!!editingQuestionId()" class="quiz-editor-toolbar-button quiz-editor-toolbar-button-secondary" id="quiz-question-bank" [class.highlight-feature]="highlightedElementId() === 'quiz-question-bank'">
-                        <span class="material-symbols-outlined text-base">account_balance</span>
-                        Adicionar do Banco
-                      </button>
-                      <button (click)="addQuestion()" [disabled]="!!editingQuestionId()" class="quiz-editor-toolbar-button quiz-editor-toolbar-button-primary">
-                        <span class="material-symbols-outlined">add</span> Adicionar Questão
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div class="space-y-3">
-                    @if ((quiz().questions ?? []).length === 0 && editingQuestionId() !== 'new') {
-                      <p class="text-center text-gray-500 dark:text-gray-400 py-8">Nenhuma questão adicionada.</p>
-                    }
-                    @for (question of quiz().questions; track question.id; let i = $index) {
-                      @if (editingQuestionId() === question.id) {
-                         @if(inlineFormQuestion(); as formQuestion) {
-                          <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border-2 border-purple-500 dark:border-purple-400 shadow-lg">
-                            <div class="space-y-4">
-                              <div>
-                                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Enunciado da Pergunta {{i + 1}} *</label>
-                                  <app-simple-text-editor class="mt-1" [ngModel]="formQuestion.questionText" (ngModelChange)="updateQuestionText($event)"></app-simple-text-editor>
-                              </div>
-                              <div class="mt-4" id="quiz-image" [class.highlight-feature]="highlightedElementId() === 'quiz-image'">
-                                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Imagem de Apoio (Opcional)</label>
-                                  @if (formQuestion.imageUrl) {
-                                      <div class="mt-2 p-2 border rounded-lg dark:border-gray-600 flex items-start gap-4 bg-gray-50 dark:bg-gray-700/50">
-                                          <img [src]="formQuestion.imageUrl" class="w-24 h-24 object-cover rounded shrink-0">
-                                          <div class="flex-1 space-y-2">
-                                              <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold">Posição da imagem:</p>
-                                              <div class="flex gap-4">
-                                                  <label class="flex items-center gap-2 text-sm cursor-pointer">
-                                                      <input type="radio" name="imagePos-{{formQuestion.id}}" value="before" [checked]="formQuestion.imagePosition === 'before'" (change)="updateImagePosition('before')">
-                                                      Antes do texto
-                                                  </label>
-                                                  <label class="flex items-center gap-2 text-sm cursor-pointer">
-                                                      <input type="radio" name="imagePos-{{formQuestion.id}}" value="after" [checked]="formQuestion.imagePosition === 'after'" (change)="updateImagePosition('after')">
-                                                      Depois do texto
-                                                  </label>
-                                              </div>
-                                              <button (click)="removeImage()" class="kp-btn kp-btn-text kp-btn-compact mt-2">
-                                                  <span class="material-symbols-outlined text-base">delete</span> Remover Imagem
-                                              </button>
-                                          </div>
-                                      </div>
-                                  } @else {
-                                      <label [for]="'image-upload-' + formQuestion.id" class="mt-2 w-full flex justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:border-purple-500 transition-colors">
-                                          <div class="text-center">
-                                              <span class="material-symbols-outlined text-3xl text-gray-400">add_photo_alternate</span>
-                                              <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Adicionar Imagem</p>
-                                              <p class="text-xs text-gray-500 dark:text-gray-400">Max 2MB, 640px de largura</p>
-                                          </div>
-                                      </label>
-                                      <input type="file" [id]="'image-upload-' + formQuestion.id" class="sr-only" (change)="handleImageFileSelect($event)" accept="image/jpeg, image/png, image/webp">
-                                  }
-                              </div>
-                                <div>
-                                  <label class="block text-sm font-medium mb-2 dark:text-gray-300">Alternativas *</label>
-                                  <div class="space-y-3">
-                                    @for (alt of formQuestion.alternatives; track $index) {
-                                      <div class="flex items-center gap-3">
-                                        <input type="radio" [name]="formQuestion.id" [checked]="formQuestion.correctAnswerIndex === $index" (change)="setCorrectAlternative($index)" class="h-5 w-5 text-purple-600 focus:ring-purple-500 shrink-0">
-                                        <input type="text" [value]="alt" (input)="updateAlternativeText($index, $event)" placeholder="Alternativa {{ $index + 1 }}" class="flex-1 p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 focus:ring-purple-500 focus:border-purple-500">
-                                        <button (click)="removeAlternative($index)" [disabled]="formQuestion.alternatives.length <= 2" class="kp-icon-btn kp-icon-btn-danger">
-                                          <span class="material-symbols-outlined text-base">delete</span>
-                                        </button>
-                                      </div>
-                                    }
-                                  </div>
-                                  <button (click)="addAlternative()" class="quiz-editor-text-button mt-3">
-                                    <span class="material-symbols-outlined text-base">add_circle</span> Adicionar Alternativa
-                                  </button>
-                                  <p class="text-xs text-gray-500 mt-2">Marque a alternativa correta.</p>
-                                </div>
-                                <div>
-                                    <div class="flex items-center gap-2 pt-4 border-t dark:border-gray-600">
-                                        <input type="checkbox" [id]="formQuestion.id + '_isInBank'" [(ngModel)]="formQuestion.isInBank" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 shrink-0">
-                                        <label [for]="formQuestion.id + '_isInBank'" class="text-sm text-gray-600 dark:text-gray-400 select-none">Adicionar esta questão ao banco de questões para reuso futuro.</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4 flex justify-end gap-2">
-                                <button (click)="cancelInlineEdit()" class="quiz-editor-inline-action quiz-editor-inline-action-secondary">Cancelar</button>
-                                <button (click)="saveInlineQuestion()" class="quiz-editor-inline-action quiz-editor-inline-action-primary">Salvar Alterações</button>
-                            </div>
-                          </div>
-                         }
-                      } @else {
-                        <div 
-                          class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border dark:border-gray-600 flex items-center justify-between transition-shadow"
-                          draggable="true"
-                          (dragstart)="onQuestionDragStart($event, question.id)"
-                          (dragend)="onQuestionDragEnd()"
-                          (dragover)="onQuestionDragOver($event)"
-                          (drop)="onQuestionDrop($event, question.id)"
-                          [class.opacity-40]="draggedQuestionId() === question.id"
-                          [class.shadow-lg]="draggedQuestionId() === question.id">
-                          <div class="font-semibold text-gray-800 dark:text-gray-200 truncate flex-1 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-gray-400 cursor-grab">drag_indicator</span>
-                            <span class="text-gray-500">{{i + 1}}.</span> 
-                            @if (question.imageUrl) {
-                                <span class="material-symbols-outlined text-purple-500 text-base" title="Esta questão contém uma imagem">image</span>
-                            }
-                            <span class="truncate block">{{ stripHtml(question.questionText) || 'Questão sem título' }}</span>
-                          </div>
-                          <div class="flex items-center gap-2">
-                            <button (click)="editQuestion(question)" [disabled]="!!editingQuestionId()" class="kp-icon-btn"><span class="material-symbols-outlined text-base">edit</span></button>
-                            <button (click)="duplicateQuestion(question.id)" [disabled]="!!editingQuestionId()" class="kp-icon-btn"><span class="material-symbols-outlined text-base">content_copy</span></button>
-                            <button (click)="deleteQuestion(question.id)" [disabled]="!!editingQuestionId()" class="kp-icon-btn kp-icon-btn-danger"><span class="material-symbols-outlined text-base">delete</span></button>
-                          </div>
-                        </div>
-                      }
-                    }
-
-                    @if (editingQuestionId() === 'new') {
-                      @if(inlineFormQuestion(); as formQuestion) {
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border-2 border-purple-500 dark:border-purple-400 shadow-lg">
-                          <div class="space-y-4">
-                              <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Enunciado da Pergunta {{ (quiz().questions ?? []).length + 1 }} *</label>
-                                <app-simple-text-editor class="mt-1" [ngModel]="formQuestion.questionText" (ngModelChange)="updateQuestionText($event)"></app-simple-text-editor>
-                              </div>
-                              <div class="mt-4" id="quiz-image" [class.highlight-feature]="highlightedElementId() === 'quiz-image'">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Imagem de Apoio (Opcional)</label>
-                                @if (formQuestion.imageUrl) {
-                                    <div class="mt-2 p-2 border rounded-lg dark:border-gray-600 flex items-start gap-4 bg-gray-50 dark:bg-gray-700/50">
-                                        <img [src]="formQuestion.imageUrl" class="w-24 h-24 object-cover rounded shrink-0">
-                                        <div class="flex-1 space-y-2">
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold">Posição da imagem:</p>
-                                            <div class="flex gap-4">
-                                                <label class="flex items-center gap-2 text-sm cursor-pointer">
-                                                    <input type="radio" name="imagePos-{{formQuestion.id}}" value="before" [checked]="formQuestion.imagePosition === 'before'" (change)="updateImagePosition('before')">
-                                                    Antes do texto
-                                                </label>
-                                                <label class="flex items-center gap-2 text-sm cursor-pointer">
-                                                    <input type="radio" name="imagePos-{{formQuestion.id}}" value="after" [checked]="formQuestion.imagePosition === 'after'" (change)="updateImagePosition('after')">
-                                                    Depois do texto
-                                                </label>
-                                            </div>
-                                            <button (click)="removeImage()" class="kp-btn kp-btn-text kp-btn-compact mt-2">
-                                                <span class="material-symbols-outlined text-base">delete</span> Remover Imagem
-                                            </button>
-                                        </div>
-                                    </div>
-                                } @else {
-                                    <label [for]="'image-upload-' + formQuestion.id" class="mt-2 w-full flex justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:border-purple-500 transition-colors">
-                                        <div class="text-center">
-                                            <span class="material-symbols-outlined text-3xl text-gray-400">add_photo_alternate</span>
-                                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Adicionar Imagem</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">Max 2MB, 640px de largura</p>
-                                        </div>
-                                    </label>
-                                    <input type="file" [id]="'image-upload-' + formQuestion.id" class="sr-only" (change)="handleImageFileSelect($event)" accept="image/jpeg, image/png, image/webp">
-                                }
-                            </div>
-                              <div>
-                                <label class="block text-sm font-medium mb-2 dark:text-gray-300">Alternativas *</label>
-                                <div class="space-y-3">
-                                  @for (alt of formQuestion.alternatives; track $index) {
-                                    <div class="flex items-center gap-3">
-                                      <input type="radio" [name]="formQuestion.id" [checked]="formQuestion.correctAnswerIndex === $index" (change)="setCorrectAlternative($index)" class="h-5 w-5 text-purple-600 focus:ring-purple-500 shrink-0">
-                                      <input type="text" [value]="alt" (input)="updateAlternativeText($index, $event)" placeholder="Alternativa {{ $index + 1 }}" class="flex-1 p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 focus:ring-purple-500 focus:border-purple-500">
-                                      <button (click)="removeAlternative($index)" [disabled]="formQuestion.alternatives.length <= 2" class="kp-icon-btn kp-icon-btn-danger">
-                                        <span class="material-symbols-outlined text-base">delete</span>
-                                      </button>
-                                    </div>
-                                  }
-                                </div>
-                                <button (click)="addAlternative()" class="quiz-editor-text-button mt-3">
-                                  <span class="material-symbols-outlined text-base">add_circle</span> Adicionar Alternativa
-                                </button>
-                                <p class="text-xs text-gray-500 mt-2">Marque a alternativa correta.</p>
-                              </div>
-                              <div>
-                                    <div class="flex items-center gap-2 pt-4 border-t dark:border-gray-600">
-                                        <input type="checkbox" [id]="formQuestion.id + '_isInBank'" [(ngModel)]="formQuestion.isInBank" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 shrink-0">
-                                        <label [for]="formQuestion.id + '_isInBank'" class="text-sm text-gray-600 dark:text-gray-400 select-none">Adicionar esta questão ao banco de questões para reuso futuro.</label>
-                                    </div>
-                                </div>
-                          </div>
-                          <div class="mt-4 flex justify-end gap-2">
-                              <button (click)="cancelInlineEdit()" class="quiz-editor-inline-action quiz-editor-inline-action-secondary">Cancelar</button>
-                              <button (click)="saveInlineQuestion()" class="quiz-editor-inline-action quiz-editor-inline-action-primary">Adicionar Questão</button>
-                          </div>
-                        </div>
-                      }
-                    }
-                  </div>
-                </div>
-              </div>
-            }
-            @case ('settings') {
-              @if(quiz().config; as config) {
-                <div class="space-y-4 max-w-3xl mx-auto">
-                  <div class="p-4 border dark:border-gray-700 rounded-lg" id="quiz-setting-randomize" [class.highlight-feature]="highlightedElementId() === 'quiz-setting-randomize'">
-                    <div class="flex items-center justify-between">
-                      <label for="randomizeQuestions" class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-                        <span>Randomizar Ordem das Perguntas</span>
-                        <span tabindex="0" class="material-symbols-outlined text-base text-gray-400 cursor-help focus:outline-none focus:ring-2 focus:ring-purple-500 rounded" [appTooltip]="'Quando ativado, a ordem das perguntas será embaralhada a cada nova tentativa do usuário. Ajuda a prevenir colas.'">info</span>
-                      </label>
-                      <input id="randomizeQuestions" type="checkbox" [ngModel]="config.randomizeQuestions" (ngModelChange)="updateConfigField('randomizeQuestions', $event)" class="toggle">
-                    </div>
-                    @if(config.randomizeQuestions) {
-                    <div class="pt-4 mt-4 border-t dark:border-gray-600">
-                      <label for="questionsToDisplay" class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                        <span>Exibir quantas questões?</span>
-                        <span tabindex="0" class="material-symbols-outlined text-base text-gray-400 cursor-help focus:outline-none focus:ring-2 focus:ring-purple-500 rounded" [appTooltip]="'Defina um número de perguntas a serem sorteadas do total. Ex: Se o quiz tem 20 e você define \'10\', o usuário receberá 10 perguntas sorteadas. Deixe em branco para usar todas.'">info</span>
-                      </label>
-                      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Selecione o número de questões a serem sorteadas do total de {{ (quiz().questions ?? []).length }} disponíveis. Deixe em branco para exibir todas.</p>
-                      <input id="questionsToDisplay" type="number" min="1" [max]="(quiz().questions ?? []).length" placeholder="Todas" [ngModel]="config.questionsToDisplay" (ngModelChange)="updateConfigField('questionsToDisplay', +$event || null)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
-                    </div>
-                    }
-                  </div>
-                  
-                  <div class="p-4 border dark:border-gray-700 rounded-lg">
-                      <div class="flex items-center justify-between">
-                        <label for="randomizeAlternatives" class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-                          <span>Randomizar Ordem das Alternativas</span>
-                          <span tabindex="0" class="material-symbols-outlined text-base text-gray-400 cursor-help focus:outline-none focus:ring-2 focus:ring-purple-500 rounded" [appTooltip]="'Quando ativado, a ordem das alternativas de cada pergunta será embaralhada. Dificulta a memorização da posição da resposta correta.'">info</span>
-                        </label>
-                        <input id="randomizeAlternatives" type="checkbox" [ngModel]="config.randomizeAlternatives" (ngModelChange)="updateConfigField('randomizeAlternatives', $event)" class="toggle">
-                      </div>
-                  </div>
-
-                  <div class="flex items-center justify-between p-4 border dark:border-gray-700 rounded-lg" id="quiz-setting-feedback" [class.highlight-feature]="highlightedElementId() === 'quiz-setting-feedback'">
-                    <label for="showImmediateFeedback" class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-                      <span>Exibir Feedback Imediato</span>
-                      <span tabindex="0" class="material-symbols-outlined text-base text-gray-400 cursor-help focus:outline-none focus:ring-2 focus:ring-purple-500 rounded" [appTooltip]="'Mostra ao usuário se ele acertou ou errou logo após responder.'">info</span>
-                    </label>
-                    <input id="showImmediateFeedback" type="checkbox" [ngModel]="config.showImmediateFeedback" (ngModelChange)="updateConfigField('showImmediateFeedback', $event)" class="toggle">
-                  </div>
-                  
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t dark:border-gray-600">
-                    <div id="quiz-setting-attempts" [class.highlight-feature]="highlightedElementId() === 'quiz-setting-attempts'" class="p-2 -m-2 rounded-xl">
-                      <label class="block text-sm font-medium flex items-center gap-1.5">
-                        <span>Número de Tentativas do Quiz</span>
-                        <span tabindex="0" class="material-symbols-outlined text-base text-gray-400 cursor-help focus:outline-none focus:ring-2 focus:ring-purple-500 rounded" [appTooltip]="'O número máximo de vezes que um usuário pode refazer o quiz completo. Use \'1\' para uma tentativa única.'">info</span>
-                      </label>
-                      <input type="number" min="0" [ngModel]="config.retakeAttempts" (ngModelChange)="updateConfigField('retakeAttempts', +$event)" class="mt-1 block w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
-                    </div>
-                    <div id="quiz-setting-time-limit" [class.highlight-feature]="highlightedElementId() === 'quiz-setting-time-limit'" class="p-2 -m-2 rounded-xl">
-                      <label class="block text-sm font-medium flex items-center gap-1.5">
-                        <span>Tempo Máximo (min)</span>
-                        <span tabindex="0" class="material-symbols-outlined text-base text-gray-400 cursor-help focus:outline-none focus:ring-2 focus:ring-purple-500 rounded" [appTooltip]="'Define um tempo limite em minutos para a conclusão do quiz. Deixe em branco ou \'0\' para não haver limite de tempo.'">info</span>
-                      </label>
-                      <input type="number" min="0" [ngModel]="config.maxTimeMinutes" (ngModelChange)="updateConfigField('maxTimeMinutes', +$event)" placeholder="Sem limite" class="mt-1 block w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
-                    </div>
-                  </div>
-                </div>
-              }
-            }
-          }
-        }
-        @case ('import') {
-          <div class="space-y-4" id="quiz-import" [class.highlight-feature]="highlightedElementId() === 'quiz-import'">
-            <p class="text-gray-600 dark:text-gray-400">
-              Para importar múltiplas questões, baixe nosso modelo de planilha, preencha com seus dados e faça o upload do arquivo no formato <code class="bg-gray-100 dark:bg-gray-700 p-1 rounded text-sm font-mono">.csv</code>.
+      <main class="quiz-editor-content">
+        @if (viewState() === 'import') {
+          <div class="quiz-import-panel" id="quiz-import" [class.highlight-feature]="highlightedElementId() === 'quiz-import'">
+            <p class="quiz-import-copy">
+              Para importar multiplas questoes, baixe o modelo de planilha, preencha os dados e envie o arquivo no formato <code>.csv</code>.
             </p>
 
-            <button (click)="downloadTemplate()" class="kp-btn kp-btn-text kp-btn-compact">
-              <span class="material-symbols-outlined text-base">download</span> Baixar modelo de planilha
+            <button type="button" class="quiz-editor-action quiz-editor-action-link" (click)="downloadTemplate()">
+              <span class="material-symbols-outlined">download</span>
+              Baixar modelo
             </button>
 
-            <label 
-                for="csv-upload"
-                class="w-full flex flex-col items-center justify-center px-6 py-10 border-2 border-dashed rounded-md cursor-pointer transition-colors"
-                [class.border-purple-500]="draggingOver()" [class.bg-purple-50]="draggingOver()" [class.dark:bg-purple-900/20]="draggingOver()"
-                [class.border-gray-300]="!draggingOver()" [class.dark:border-gray-600]="!draggingOver()"
-                (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
-              <span class="material-symbols-outlined text-5xl text-gray-400 dark:text-gray-500">upload_file</span>
-              <p class="mt-2 text-lg text-gray-600 dark:text-gray-300 font-semibold">Arraste e solte o arquivo .csv aqui</p>
-              <p class="text-gray-500 dark:text-gray-400">ou</p>
-              <span class="mt-2 text-sm text-purple-600 dark:text-purple-400 font-bold">Selecione o arquivo</span>
+            <label
+              for="csv-upload"
+              class="quiz-import-dropzone"
+              [class.is-dragging]="draggingOver()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)">
+              <span class="material-symbols-outlined quiz-import-icon">upload_file</span>
+              <strong>Arraste o arquivo .csv aqui</strong>
+              <span>ou clique para selecionar</span>
             </label>
-            <input id="csv-upload" type="file" class="sr-only" accept=".csv" (change)="onFileSelected($event)">
+            <input id="csv-upload" type="file" class="quiz-import-input" accept=".csv" (change)="onFileSelected($event)">
 
-            @if(importError(); as errorMessage) {
-              <div class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-3 rounded-lg text-sm flex items-center gap-2">
-                  <span class="material-symbols-outlined text-base">error</span>
-                  <span>{{ errorMessage }}</span>
+            @if (importError(); as errorMessage) {
+              <div class="quiz-import-message is-error">
+                <span class="material-symbols-outlined">error</span>
+                <span>{{ errorMessage }}</span>
               </div>
             }
+
             @if (importFile(); as selectedFile) {
               @if (parsedQuestions().length > 0) {
-                  <div class="bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 p-3 rounded-lg text-sm flex items-center gap-2">
-                      <span class="material-symbols-outlined text-base">check_circle</span>
-                      <span>Arquivo <strong>{{ selectedFile.name }}</strong> carregado. Encontradas <strong>{{ parsedQuestions().length }}</strong> questões válidas.</span>
-                  </div>
+                <div class="quiz-import-message is-success">
+                  <span class="material-symbols-outlined">check_circle</span>
+                  <span>Arquivo <strong>{{ selectedFile.name }}</strong> carregado com <strong>{{ parsedQuestions().length }}</strong> questoes validas.</span>
+                </div>
               }
             }
           </div>
-        }
-      }
-    </main>
+        } @else if (activeTab() === 'settings') {
+          @if (quiz().config; as config) {
+            <div class="quiz-settings-list">
+              <section class="quiz-settings-card" id="quiz-setting-randomize" [class.highlight-feature]="highlightedElementId() === 'quiz-setting-randomize'">
+                <div class="quiz-settings-row">
+                  <label for="randomizeQuestions" class="quiz-settings-label">
+                    <span>Randomizar ordem das perguntas</span>
+                    <span tabindex="0" class="material-symbols-outlined quiz-settings-info" [appTooltip]="'Quando ativado, a ordem das perguntas muda a cada nova tentativa do usuario.'">info</span>
+                  </label>
+                  <input id="randomizeQuestions" type="checkbox" [ngModel]="config.randomizeQuestions" (ngModelChange)="updateConfigField('randomizeQuestions', $event)" class="quiz-editor-toggle">
+                </div>
 
-    <!-- Footer -->
-    <footer class="quiz-editor-footer">
-       @if (viewState() === 'editor') {
-        <button (click)="close.emit()" class="quiz-editor-button quiz-editor-button-secondary">Cancelar</button>
-        <button (click)="handlePublish()" [disabled]="!canPublish()" class="quiz-editor-button quiz-editor-button-primary">Publicar Quiz</button>
-      } @else {
-        <button (click)="switchToEditorView()" class="quiz-editor-button quiz-editor-button-secondary">Cancelar</button>
-        <button (click)="handleImport()" [disabled]="parsedQuestions().length === 0" class="quiz-editor-button quiz-editor-button-primary">
-          Importar Questões
-        </button>
-      }
-    </footer>
+                @if (config.randomizeQuestions) {
+                  <div class="quiz-settings-field">
+                    <label for="questionsToDisplay">Quantidade de questoes por execucao</label>
+                    <input
+                      id="questionsToDisplay"
+                      type="number"
+                      min="1"
+                      [max]="(quiz().questions ?? []).length"
+                      placeholder="Todas"
+                      [ngModel]="config.questionsToDisplay"
+                      (ngModelChange)="updateConfigField('questionsToDisplay', +$event || null)"
+                      class="quiz-settings-input">
+                    <p>Escolha quantas questoes do banco do quiz serao exibidas em cada tentativa.</p>
+                  </div>
+                }
+              </section>
+            </div>
+          }
+        } @else {
+          <div class="quiz-editor-accordion-list">
+            @if ((quiz().questions ?? []).length === 0) {
+              <section class="quiz-editor-empty-state">
+                Nenhuma questao adicionada.
+              </section>
+            }
+
+            @for (question of quiz().questions; track question.id; let index = $index) {
+              <section class="quiz-editor-accordion" [class.is-open]="isQuestionExpanded(question.id)">
+                <button type="button" class="quiz-editor-accordion-header" (click)="toggleQuestion(question.id)">
+                  <div class="quiz-editor-accordion-title-wrap">
+                    <span class="quiz-editor-accordion-title">{{ getQuestionTitle(index) }}</span>
+                  </div>
+                  <div class="quiz-editor-accordion-actions">
+                    <button type="button" class="quiz-editor-delete-button" (click)="deleteQuestion(question.id); $event.stopPropagation()" aria-label="Excluir questao">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                    <span class="material-symbols-outlined quiz-editor-expand-icon" [class.is-open]="isQuestionExpanded(question.id)">expand_more</span>
+                  </div>
+                </button>
+
+                @if (isQuestionExpanded(question.id)) {
+                  <div class="quiz-editor-accordion-body">
+                    <div class="quiz-editor-question-form">
+                      <app-simple-text-editor class="quiz-editor-rich-text" [ngModel]="question.questionText" (ngModelChange)="updateQuestionText(question.id, $event)"></app-simple-text-editor>
+
+                      <div class="quiz-editor-options">
+                        @for (alternative of question.alternatives; track $index) {
+                          <div class="quiz-editor-option-row">
+                            <input type="checkbox" [checked]="question.correctAnswerIndex === $index" (change)="setCorrectAlternative(question.id, $index)" class="quiz-editor-option-checkbox">
+                            <input type="text" [value]="alternative" (input)="updateAlternativeText(question.id, $index, $event)" placeholder="Escreva uma alternativa" class="quiz-editor-option-input">
+                            <button type="button" class="quiz-editor-delete-button" (click)="removeAlternative(question.id, $index)" aria-label="Excluir opcao">
+                              <span class="material-symbols-outlined">delete</span>
+                            </button>
+                          </div>
+                        }
+                      </div>
+
+                      <div class="quiz-editor-question-actions">
+                        <button type="button" class="quiz-editor-add-option" (click)="addAlternative(question.id)">
+                          <span class="material-symbols-outlined">add</span>
+                          Adicionar alternativa
+                        </button>
+
+                        <div class="quiz-editor-inline-meta">
+                          <label class="quiz-editor-bank-toggle-row">
+                            <span>Adicionar esta questao ao banco de questoes para reuso futuro.</span>
+                            <input type="checkbox" [ngModel]="question.isInBank" (ngModelChange)="toggleQuestionBank(question.id, $event)" class="quiz-editor-toggle">
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </section>
+            }
+          </div>
+        }
+      </main>
+
+      <footer class="quiz-editor-footer">
+        @if (viewState() === 'editor') {
+          @if (activeTab() === 'questions') {
+            <div class="quiz-editor-footer-left">
+              <button type="button" class="quiz-editor-action quiz-editor-action-secondary" (click)="switchToImportView()" [disabled]="(quiz().questions ?? []).length > 0">
+                <span class="material-symbols-outlined">upload</span>
+                Importar planilha
+              </button>
+              <button
+                type="button"
+                class="quiz-editor-action quiz-editor-action-secondary"
+                id="quiz-question-bank"
+                [class.highlight-feature]="highlightedElementId() === 'quiz-question-bank'"
+                (click)="isBankOpen.set(true)">
+                <span class="material-symbols-outlined">account_balance</span>
+                Banco de questoes
+              </button>
+              <button type="button" class="quiz-editor-action quiz-editor-action-link" (click)="addQuestion()">
+                <span class="material-symbols-outlined">add</span>
+                Adicionar questao
+              </button>
+            </div>
+          }
+          <div class="quiz-editor-footer-right">
+            <button type="button" class="quiz-editor-action quiz-editor-action-secondary" (click)="close.emit()">Cancelar</button>
+            <button type="button" class="quiz-editor-action quiz-editor-action-primary" (click)="handlePublish()" [disabled]="!canPublish()">Publicar quiz</button>
+          </div>
+        } @else {
+          <div class="quiz-editor-footer-right">
+            <button type="button" class="quiz-editor-action quiz-editor-action-secondary" (click)="switchToEditorView()">Cancelar</button>
+            <button type="button" class="quiz-editor-action quiz-editor-action-primary" (click)="handleImport()" [disabled]="parsedQuestions().length === 0">Importar questoes</button>
+          </div>
+        }
+      </footer>
+    </div>
   </div>
 </div>
 
 @if (isBankOpen()) {
-  <app-question-bank-modal 
+  <app-question-bank-modal
     (close)="isBankOpen.set(false)"
     (questionsSelected)="addQuestionsFromBank($event)"
   />

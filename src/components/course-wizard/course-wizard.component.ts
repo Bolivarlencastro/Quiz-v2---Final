@@ -9,7 +9,7 @@ import { Course, Topic, ContentItem, ContentType, Pulse, QuizQuestion } from '..
 import { CreationWizardComponent } from '../creation-wizard/creation-wizard.component';
 import { QuizCreationMethodModalComponent } from '../modals/quiz-creation-method-modal.component';
 import { QuizAiAssistantModalComponent } from '../modals/quiz-ai-assistant-modal.component';
-import { QuizEditorModalComponent } from '../modals/quiz-editor-modal.component';
+import { QuizBuilderModalComponent } from '../modals/quiz-builder-modal.component';
 import { EMPTY_PULSE } from '../../mock-data';
 import { QuizPlayerComponent } from '../quiz-player/quiz-player.component';
 import { ImageUploadModalComponent } from '../modals/image-upload-modal.component';
@@ -18,6 +18,7 @@ import { GoogleGenAI, GenerateContentResponse, Type } from '@google/genai';
 import { QuizTypeSelectModalComponent } from '../modals/quiz-type-select-modal.component';
 import { QuizNameModalComponent } from '../modals/quiz-name-modal.component';
 import { AddQuestionModalComponent } from '../modals/add-question-modal.component';
+import { ContentCreationDialogComponent } from '../modals/content-creation-dialog.component';
 
 @Component({
   selector: 'app-course-wizard',
@@ -27,13 +28,14 @@ import { AddQuestionModalComponent } from '../modals/add-question-modal.componen
     CreationWizardComponent,
     QuizCreationMethodModalComponent,
     QuizAiAssistantModalComponent,
-    QuizEditorModalComponent,
+    QuizBuilderModalComponent,
     QuizPlayerComponent,
     ImageUploadModalComponent,
     ImageCropperModalComponent,
     QuizTypeSelectModalComponent,
     QuizNameModalComponent,
-    AddQuestionModalComponent
+    AddQuestionModalComponent,
+    ContentCreationDialogComponent
   ],
   templateUrl: './course-wizard.component.html',
   styleUrls: ['./course-wizard.component.css'],
@@ -52,9 +54,11 @@ export class CourseWizardComponent {
   currentStep = signal<number>(1);
   activeAddContentMenu = signal<string | null>(null); // Holds topic ID for dropdown
   addContentMenuDirection = signal<'up' | 'down'>('up');
+  showContentCreationDialog = signal(false);
+  targetTopicIdForContentDialog = signal<string | null>(null);
+  readonly contentCreationFlowVersion: 'legacy-menu' | 'dialog-v1' = 'dialog-v1';
 
   // --- Signals for simplified UI (Step 4) ---
-  editingTopicId = signal<string | null>(null);
   activeTopicMenu = signal<string | null>(null);
   activeContentMenu = signal<string | null>(null);
   expandedTopics = signal<Set<string>>(new Set());
@@ -229,10 +233,10 @@ export class CourseWizardComponent {
     const newTopic: Topic = {
         id: `topic_${Date.now()}`,
         title: 'Novo Tópico',
+        description: 'Adicione uma descrição objetiva para contextualizar este tópico.',
         contents: []
     };
     this.course.update(c => ({...c, topics: [...c.topics, newTopic]}));
-    this.editingTopicId.set(newTopic.id);
     this.expandedTopics.update(set => {
       set.add(newTopic.id);
       return new Set(set);
@@ -270,6 +274,12 @@ export class CourseWizardComponent {
   }
 
   toggleAddContentMenu(topicId: string, event: MouseEvent): void {
+    if (this.contentCreationFlowVersion === 'dialog-v1') {
+      this.targetTopicIdForContentDialog.set(topicId);
+      this.showContentCreationDialog.set(true);
+      return;
+    }
+
     if (this.activeAddContentMenu() === topicId) {
         this.activeAddContentMenu.set(null);
     } else {
@@ -295,6 +305,8 @@ export class CourseWizardComponent {
   handleContentSelected(type: ContentType, topicId: string): void {
     if (!topicId) return;
     this.activeAddContentMenu.set(null);
+    this.showContentCreationDialog.set(false);
+    this.targetTopicIdForContentDialog.set(null);
 
     if (type === 'quiz') {
       this.targetTopicIdForQuiz.set(topicId);
@@ -326,23 +338,12 @@ export class CourseWizardComponent {
       return {...c, topics: newTopics};
     });
   }
+
+  closeContentCreationDialog(): void {
+    this.showContentCreationDialog.set(false);
+    this.targetTopicIdForContentDialog.set(null);
+  }
   
-  startTopicEdit(topicId: string): void {
-    this.editingTopicId.set(topicId);
-    this.activeTopicMenu.set(null);
-  }
-
-  saveTopicTitle(topicId: string, event: Event): void {
-    const newTitle = (event.target as HTMLInputElement).value.trim();
-    if (newTitle) {
-      this.course.update(c => {
-        const updatedTopics = c.topics.map(t => t.id === topicId ? { ...t, title: newTitle } : t);
-        return { ...c, topics: updatedTopics };
-      });
-    }
-    this.editingTopicId.set(null);
-  }
-
   toggleTopicMenu(topicId: string): void {
     this.activeTopicMenu.update(current => current === topicId ? null : topicId);
   }

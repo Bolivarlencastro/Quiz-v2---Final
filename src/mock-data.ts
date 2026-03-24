@@ -56,6 +56,7 @@ export const MOCK_COURSE_TEMPLATE: Course = {
     {
       id: 'topic_1',
       title: 'Módulo 1: Boas-vindas à Empresa',
+      description: 'Conheça a empresa, a cultura e os materiais iniciais para começar sua jornada.',
       contents: [
         { id: 'content_1', type: 'video', title: 'Uma Mensagem do nosso CEO', description: '', source: 'https://www.youtube.com/watch?v=nO_d_J-h3bY'},
         { id: 'content_2', type: 'document', title: 'Manual da Empresa', description: '', source: ''}
@@ -64,6 +65,7 @@ export const MOCK_COURSE_TEMPLATE: Course = {
     {
       id: 'topic_2',
       title: 'Módulo 2: Ferramentas e Sistemas',
+      description: 'Explore os sistemas e processos essenciais para a rotina do colaborador.',
       contents: [
         { id: 'content_3', type: 'video', title: '6 dicas essenciais de como dar feedback', description: 'Episódio 2', source: 'https://www.youtube.com/watch?v=3z_PYm_H50I'}
       ]

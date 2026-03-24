@@ -69,4 +69,9 @@ export class SimpleTextEditorComponent implements ControlValueAccessor, AfterVie
       this.execCommand('createLink', url);
     }
   }
+
+  clearFormatting(): void {
+    this.execCommand('removeFormat');
+    this.execCommand('unlink');
+  }
 }

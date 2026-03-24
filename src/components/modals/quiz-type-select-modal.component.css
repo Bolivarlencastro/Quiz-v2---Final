@@ -82,6 +82,7 @@
 }
 
 .selection-card {
+  position: relative;
   display: flex;
   min-height: 200px;
   flex-direction: column;
@@ -99,6 +100,34 @@
   border-color: var(--kp-primary);
   background: var(--kp-primary-soft);
   box-shadow: 0 12px 24px rgb(108 76 255 / 0.12);
+}
+
+.selection-card-disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+.selection-card-disabled:hover {
+  border-color: var(--kp-border);
+  background: var(--kp-surface);
+  box-shadow: none;
+}
+
+.selection-card-pill {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  background: #f5ecd9;
+  color: #8c5a00;
+  font-size: 0.75rem;
+  font-weight: 800;
 }
 
 .selection-card-icon {

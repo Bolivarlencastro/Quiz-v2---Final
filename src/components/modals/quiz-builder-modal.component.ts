@@ -11,13 +11,13 @@ type ActiveTab = 'questions' | 'settings';
 type ViewState = 'editor' | 'import';
 
 @Component({
-  selector: 'app-quiz-editor-modal',
+  selector: 'app-quiz-builder-modal',
   imports: [CommonModule, FormsModule, SimpleTextEditorComponent, TooltipDirective, QuestionBankModalComponent],
   templateUrl: './quiz-editor-modal.component.html',
   styleUrl: './quiz-editor-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizEditorModalComponent {
+export class QuizBuilderModalComponent {
   initialPulseData = input.required<Pulse>();
   highlightTarget = input<string | null>(null);
 

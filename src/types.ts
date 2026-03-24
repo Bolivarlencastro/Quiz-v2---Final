@@ -31,6 +31,7 @@ export interface Course {
 export interface Topic {
   id: string;
   title: string;
+  description: string;
   contents: ContentItem[];
 }
 
@@ -54,6 +55,7 @@ export interface QuizQuestion {
   imageUrl?: string | null;
   imagePosition?: 'before' | 'after';
   alternatives?: string[];
+  correctAnswerIndexes?: number[];
   correctAnswerIndex?: number | null;
   isInBank?: boolean;
 }

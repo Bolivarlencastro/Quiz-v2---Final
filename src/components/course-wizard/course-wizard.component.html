@@ -230,11 +230,8 @@
                   (dragend)="onDragEnd($event)">
                   <span class="material-symbols-outlined text-gray-500 dark:text-gray-400 cursor-grab p-1">drag_handle</span>
                   <div class="flex-grow mx-2 cursor-pointer" (click)="toggleTopicExpansion(topic.id)">
-                    @if (editingTopicId() === topic.id) {
-                      <input type="text" [value]="topic.title" (blur)="saveTopicTitle(topic.id, $event)" (keyup.enter)="saveTopicTitle(topic.id, $event)" class="font-semibold text-lg text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-600 border border-purple-500 rounded-lg px-2 py-1 -my-1 w-full focus:outline-none focus:ring-2 focus:ring-purple-500" (click)="$event.stopPropagation()" (focus)="$event.target.select()" cdkFocusInitial>
-                    } @else {
-                      <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 px-2 py-1 -my-1 rounded-lg truncate">{{ topic.title }}</h3>
-                    }
+                    <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 px-2 pt-1 rounded-lg truncate">{{ topic.title }}</h3>
+                    <p class="wizard-topic-description px-2 pb-1">{{ topic.description }}</p>
                   </div>
                   <div class="relative">
                     <button (click)="toggleTopicMenu(topic.id)" class="wizard-icon-button">
@@ -242,7 +239,6 @@
                     </button>
                     @if (activeTopicMenu() === topic.id) {
                         <div class="wizard-context-menu absolute right-0 mt-2 w-56" (click)="$event.stopPropagation()">
-                            <a (click)="startTopicEdit(topic.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">edit</span>Renomear</a>
                             <a (click)="duplicateTopic(topic.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"><span class="material-symbols-outlined text-base">content_copy</span>Duplicar</a>
                             <div class="border-t my-1 dark:border-gray-700"></div>
                             <a (click)="removeTopic(topic.id)" class="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer"><span class="material-symbols-outlined text-base">delete</span>Excluir Tópico</a>
@@ -339,15 +335,19 @@
                       @if (dropTargetId() === topic.id && draggedItem()?.type === 'content') {
                           <div class="drop-placeholder"><span class="material-symbols-outlined text-gray-400">add</span><span class="text-sm font-medium text-gray-500">Solte aqui para adicionar</span></div>
                       }
-                      <div class="relative mt-2 flex items-center gap-2">
-                         <div class="relative flex-grow">
-                            <button (click)="toggleAddContentMenu(topic.id, $event)" class="wizard-text-button">
-                                <span class="material-symbols-outlined">add_circle</span>
-                                Adicionar Conteúdo
-                            </button>
-                            @if (activeAddContentMenu() === topic.id) {
+                      <div class="wizard-topic-footer">
+                         <div class="relative">
+                            <div class="wizard-split-action">
+                              <button (click)="toggleAddContentMenu(topic.id, $event)" class="wizard-split-action-main">
+                                  Novo conteúdo
+                              </button>
+                              <button (click)="toggleAddContentMenu(topic.id, $event)" class="wizard-split-action-toggle" aria-label="Abrir menu de novo conteúdo">
+                                  <span class="material-symbols-outlined">arrow_drop_down</span>
+                              </button>
+                            </div>
+                            @if (contentCreationFlowVersion === 'legacy-menu' && activeAddContentMenu() === topic.id) {
                                 <div (click)="activeAddContentMenu.set(null)" class="fixed inset-0 z-10"></div>
-                                <div class="wizard-context-menu absolute left-0 w-72 py-1"
+                                <div class="wizard-context-menu absolute right-0 w-72 py-1"
                                     [class.bottom-full]="addContentMenuDirection() === 'up'"
                                     [class.mb-2]="addContentMenuDirection() === 'up'"
                                     [class.top-full]="addContentMenuDirection() === 'down'"
@@ -361,22 +361,6 @@
                                 </div>
                             }
                          </div>
-
-                         <button 
-                            (click)="generateQuickQuiz(topic)"
-                            [disabled]="isQuickQuizDisabled(topic)"
-                            class="wizard-text-button flex-shrink-0">
-                            @if (quickQuizLoadingTopicId() === topic.id) {
-                              <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              <span>Gerando...</span>
-                            } @else {
-                              <span class="material-symbols-outlined">auto_awesome</span>
-                              <span>Gerar Quiz Rápido</span>
-                            }
-                         </button>
                       </div>
                   </div>
                 }
@@ -449,6 +433,13 @@
   </div>
 }
 
+@if(showContentCreationDialog() && targetTopicIdForContentDialog(); as topicId) {
+  <app-content-creation-dialog
+    (close)="closeContentCreationDialog()"
+    (contentSelected)="handleContentSelected($event, topicId)"
+  />
+}
+
 
 <!-- Quiz Player (Fullscreen) -->
 @if (quizToPreview(); as quiz) {
@@ -500,7 +491,7 @@
   }
   @case ('editor') {
     @if(quizForContent(); as quiz) {
-      <app-quiz-editor-modal
+      <app-quiz-builder-modal
         [initialPulseData]="quiz"
         [highlightTarget]="highlightTarget()"
         (close)="closeQuizModals()"

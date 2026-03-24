@@ -1,0 +1,82 @@
+<div class="creation-dialog-backdrop" (click)="close.emit()">
+  <div class="creation-dialog-panel" (click)="$event.stopPropagation()">
+    <h2 class="creation-dialog-title">Subir Conteúdo</h2>
+
+    @if (stage() !== 'root') {
+      <button type="button" (click)="goBack()" class="creation-dialog-back">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Voltar
+      </button>
+    }
+
+    @if (stage() === 'root') {
+      <div class="creation-dialog-actions">
+        <button type="button" class="creation-dialog-option creation-dialog-option-compact" (click)="selectRootOption('file')">
+          <span class="material-symbols-outlined creation-dialog-option-icon">file_upload</span>
+          <span class="creation-dialog-option-title">Arquivo</span>
+        </button>
+
+        <button type="button" class="creation-dialog-option creation-dialog-option-compact" (click)="selectRootOption('quiz')">
+          <span class="material-symbols-outlined creation-dialog-option-icon">quiz</span>
+          <span class="creation-dialog-option-title">Quiz</span>
+        </button>
+
+        <button type="button" class="creation-dialog-option creation-dialog-option-compact" (click)="selectRootOption('link')">
+          <span class="material-symbols-outlined creation-dialog-option-icon">link</span>
+          <span class="creation-dialog-option-title">Link</span>
+        </button>
+
+        <button type="button" class="creation-dialog-option creation-dialog-option-wide" (click)="selectRootOption('authoring')">
+          <span class="creation-dialog-option-icon creation-dialog-option-icon-svg" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M8.88 17.52l-5.52-5.52 5.52-5.52-1.68-1.68-7.2 7.2 7.2 7.2zM15.12 17.52l5.52-5.52-5.52-5.52 1.68-1.68 7.2 7.2-7.2 7.2z"></path>
+            </svg>
+          </span>
+          <span class="creation-dialog-option-title">Ferramentas de Autoria</span>
+        </button>
+      </div>
+    }
+
+    @if (stage() === 'file') {
+      <div class="creation-dialog-subgrid">
+        <button type="button" class="creation-dialog-chip" (click)="selectContent('video')">
+          <span class="material-symbols-outlined">movie</span>
+          Vídeo
+        </button>
+        <button type="button" class="creation-dialog-chip" (click)="selectContent('audio')">
+          <span class="material-symbols-outlined">headphones</span>
+          Áudio
+        </button>
+        <button type="button" class="creation-dialog-chip" (click)="selectContent('image')">
+          <span class="material-symbols-outlined">image</span>
+          Imagem
+        </button>
+        <button type="button" class="creation-dialog-chip" (click)="selectContent('document')">
+          <span class="material-symbols-outlined">description</span>
+          Documento
+        </button>
+      </div>
+    }
+
+    @if (stage() === 'link') {
+      <div class="creation-dialog-subgrid">
+        <button type="button" class="creation-dialog-chip" (click)="selectContent('web')">
+          <span class="material-symbols-outlined">smart_display</span>
+          YouTube ou Vimeo
+        </button>
+        <button type="button" class="creation-dialog-chip" (click)="selectContent('web')">
+          <span class="material-symbols-outlined">cloud</span>
+          Google Drive
+        </button>
+        <button type="button" class="creation-dialog-chip" (click)="selectContent('web')">
+          <span class="material-symbols-outlined">podcasts</span>
+          SoundCloud
+        </button>
+        <button type="button" class="creation-dialog-chip" (click)="selectContent('web')">
+          <span class="material-symbols-outlined">link</span>
+          Link genérico
+        </button>
+      </div>
+    }
+  </div>
+</div>

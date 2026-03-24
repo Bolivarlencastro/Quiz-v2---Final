@@ -3,17 +3,7 @@ import { Component, ChangeDetectionStrategy, output, signal, computed } from '@a
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuizQuestion } from '../../types';
-
-// Mock data, in a real app this would come from a service.
-const MOCK_QUESTION_BANK: QuizQuestion[] = [
-  // FIX: Add missing questionType property
-  { id: 'bq_1', questionType: 'multipleChoice', questionText: 'O que significa a sigla "CEO"?', alternatives: ['Chief Executive Officer', 'Chief Engineering Officer', 'Central Executive Official', 'Corporate Executive Office'], correctAnswerIndex: 0, isInBank: true },
-  { id: 'bq_2', questionType: 'multipleChoice', questionText: 'Qual destes é um pilar da cultura da nossa empresa?', alternatives: ['Inovação Contínua', 'Apenas Resultados', 'Hierarquia Rígida', 'Competição Interna'], correctAnswerIndex: 0, isInBank: true },
-  { id: 'bq_3', questionType: 'multipleChoice', questionText: 'Qual é a política de home office?', alternatives: ['100% Remoto', 'Modelo Híbrido Flexível', 'Apenas Presencial', 'Remoto apenas às sextas'], correctAnswerIndex: 1, isInBank: true },
-  { id: 'bq_4', questionType: 'multipleChoice', questionText: 'Qual ferramenta usamos para comunicação interna?', alternatives: ['E-mail', 'WhatsApp', 'Slack', 'Telegram'], correctAnswerIndex: 2, isInBank: true },
-  { id: 'bq_5', questionType: 'multipleChoice', questionText: 'Qual o procedimento para solicitar férias?', alternatives: ['Enviar um e-mail para o RH', 'Falar com o gestor direto', 'Utilizar o portal do colaborador', 'Nenhuma das anteriores'], correctAnswerIndex: 2, isInBank: true },
-  { id: 'bq_6', questionType: 'multipleChoice', questionText: 'O que é "feedback 360 graus"?', alternatives: ['Uma avaliação feita apenas pelo gestor', 'Uma autoavaliação', 'Uma avaliação que inclui feedback de pares, subordinados e gestores', 'Uma avaliação de desempenho anual'], correctAnswerIndex: 2, isInBank: true },
-];
+import { questionBankState, removeQuestionFromBank } from '../../question-bank.store';
 
 @Component({
   selector: 'app-question-bank-modal',
@@ -25,14 +15,20 @@ export class QuestionBankModalComponent {
   close = output<void>();
   questionsSelected = output<QuizQuestion[]>();
 
-  private allBankQuestions = signal<QuizQuestion[]>(MOCK_QUESTION_BANK);
   searchQuery = signal<string>('');
   selectedQuestionIds = signal<Set<string>>(new Set());
 
   filteredQuestions = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
-    if (!query) return this.allBankQuestions();
-    return this.allBankQuestions().filter(q => q.questionText.toLowerCase().includes(query));
+    const questions = questionBankState();
+
+    if (!query) return questions;
+
+    return questions.filter((question) => {
+      const questionText = question.questionText.toLowerCase();
+      const alternatives = (question.alternatives ?? []).join(' ').toLowerCase();
+      return questionText.includes(query) || alternatives.includes(query);
+    });
   });
 
   isSelected(questionId: string): boolean {
@@ -52,8 +48,30 @@ export class QuestionBankModalComponent {
 
   addSelectedQuestions(): void {
     const selectedIds = this.selectedQuestionIds();
-    const questionsToAdd = this.allBankQuestions().filter(q => selectedIds.has(q.id));
+    const questionsToAdd = questionBankState().filter(q => selectedIds.has(q.id));
     this.questionsSelected.emit(questionsToAdd);
+  }
+
+  removeFromBank(questionId: string, event: Event): void {
+    event.stopPropagation();
+    this.selectedQuestionIds.update((currentSet) => {
+      currentSet.delete(questionId);
+      return new Set(currentSet);
+    });
+    removeQuestionFromBank(questionId);
+  }
+
+  getCorrectAnswers(question: QuizQuestion): string {
+    const indexes = question.correctAnswerIndexes?.length
+      ? question.correctAnswerIndexes
+      : question.correctAnswerIndex != null
+        ? [question.correctAnswerIndex]
+        : [];
+
+    return indexes
+      .map((index) => question.alternatives?.[index])
+      .filter(Boolean)
+      .join(', ');
   }
 
   stripHtml(html: string): string {

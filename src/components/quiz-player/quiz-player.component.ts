@@ -1,14 +1,14 @@
-import { Component, ChangeDetectionStrategy, input, output, signal, computed, Pipe, PipeTransform, inject, SecurityContext, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Pipe, PipeTransform, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Pulse, QuizQuestion } from '../../types';
 import { FormsModule } from '@angular/forms';
+import { Pulse, QuizQuestion } from '../../types';
 
 @Pipe({ name: 'safeHtml', standalone: true })
 export class SafeHtmlPipe implements PipeTransform {
   private sanitizer = inject(DomSanitizer);
+
   transform(value: string): SafeHtml {
-    // Sanitize the value to prevent XSS attacks, but still allow safe HTML
     return this.sanitizer.bypassSecurityTrustHtml(value);
   }
 }
@@ -17,7 +17,7 @@ type QuizState = 'intro' | 'playing' | 'finished';
 
 interface Answer {
   questionId: string;
-  selectedAlternativeIndex?: number;
+  selectedAlternativeIndices?: number[];
   openTextAnswer?: string;
   isCorrect?: boolean;
 }
@@ -34,66 +34,42 @@ export class QuizPlayerComponent {
   isInlinePlayer = input<boolean>(false);
 
   quizCompleted = output<void>();
-  exitPreview = output<void>(); // This is still used by the wizard preview
+  exitPreview = output<void>();
   progressUpdate = output<number>();
   progressTextUpdate = output<string>();
 
-  questions = computed(() => this.quizData().questions ?? []);
+  registeredQuestions = computed(() => (this.quizData().questions ?? []).map((question) => this.normalizeQuestion(question)));
+  activeQuestions = signal<QuizQuestion[]>([]);
   answers = signal<Answer[]>([]);
   quizState = signal<QuizState>('intro');
   currentQuestionIndex = signal(0);
-  
-  // For single question view
-  selectedAnswerIndex = signal<number | null>(null);
-  openTextAnswer = signal<string>('');
-  isReviewing = signal(false);
+  selectedAnswerIndexes = signal<Set<number>>(new Set());
+  openTextAnswer = signal('');
 
-  // Computed state
-  currentQuestion = computed<QuizQuestion | null>(() => {
-    const qs = this.questions();
-    if (qs.length > 0) {
-        return qs[this.currentQuestionIndex()] ?? null;
-    }
-    return null;
-  });
-  
-  isLastQuestion = computed(() => this.currentQuestionIndex() === this.questions().length - 1);
-
+  currentQuestion = computed<QuizQuestion | null>(() => this.activeQuestions()[this.currentQuestionIndex()] ?? null);
+  isLastQuestion = computed(() => this.currentQuestionIndex() === this.activeQuestions().length - 1);
   isConfirmDisabled = computed(() => {
-    if (this.isReviewing()) return false;
     const question = this.currentQuestion();
     if (!question) return true;
-
     if (question.questionType === 'multipleChoice') {
-        return this.selectedAnswerIndex() === null;
+      return this.selectedAnswerIndexes().size === 0;
     }
-    if (question.questionType === 'openText') {
-        return !this.openTextAnswer().trim();
-    }
-    return true;
+    return !this.openTextAnswer().trim();
   });
-
-
   progress = computed(() => {
-    const total = this.questions().length;
+    const total = this.activeQuestions().length;
     if (total === 0) return 0;
     if (this.quizState() === 'finished') return 100;
-    
-    // Progress is based on confirmed answers for immediate feedback mode, or current index otherwise
-    if (this.quizData().config?.showImmediateFeedback) {
-        return (this.answers().length / total) * 100;
-    }
     return (this.currentQuestionIndex() / total) * 100;
   });
-  
+
   score = signal(0);
   correctAnswers = signal(0);
 
   constructor() {
     effect(() => {
       this.progressUpdate.emit(this.progress());
-
-      const total = this.questions().length;
+      const total = this.activeQuestions().length;
       if (this.quizState() === 'playing' && total > 0) {
         this.progressTextUpdate.emit(`${this.currentQuestionIndex() + 1} / ${total}`);
       } else {
@@ -103,117 +79,134 @@ export class QuizPlayerComponent {
   }
 
   startQuiz(): void {
+    const config = this.quizData().config;
+    let questions = [...this.registeredQuestions()];
+
+    if (config?.randomizeQuestions) {
+      questions = this.shuffle(questions);
+    }
+
+    const questionsToDisplay = config?.questionsToDisplay ?? null;
+    if (questionsToDisplay && questionsToDisplay > 0) {
+      questions = questions.slice(0, questionsToDisplay);
+    }
+
+    this.activeQuestions.set(questions);
     this.currentQuestionIndex.set(0);
     this.answers.set([]);
     this.quizState.set('playing');
     this.resetQuestionState();
   }
 
-  selectAnswer(index: number): void {
-    if (this.isReviewing()) return;
-    this.selectedAnswerIndex.set(index);
+  toggleAnswer(index: number): void {
+    this.selectedAnswerIndexes.update((current) => {
+      const next = new Set(current);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
   }
 
   confirmAnswer(): void {
     const question = this.currentQuestion();
     if (!question) return;
 
-    if (this.quizData().quizType === 'survey') {
-      const newAnswer: Answer = { questionId: question.id };
-      if (question.questionType === 'multipleChoice') {
-        if (this.selectedAnswerIndex() === null) return;
-        newAnswer.selectedAlternativeIndex = this.selectedAnswerIndex()!;
-      } else if (question.questionType === 'openText') {
-        if (!this.openTextAnswer().trim()) return;
-        newAnswer.openTextAnswer = this.openTextAnswer();
-      }
-      this.answers.update(a => [...a, newAnswer]);
-      this.nextQuestion();
-    } else { // Evaluative quiz logic
-      const selectedIndex = this.selectedAnswerIndex();
-      if (selectedIndex === null) return;
-
-      const isCorrect = selectedIndex === question.correctAnswerIndex;
-      this.answers.update(a => [...a, {
+    if (question.questionType === 'openText') {
+      this.answers.update((answers) => [...answers, {
         questionId: question.id,
-        selectedAlternativeIndex: selectedIndex,
-        isCorrect: isCorrect
+        openTextAnswer: this.openTextAnswer().trim(),
       }]);
-
-      if (this.quizData().config?.showImmediateFeedback) {
-          this.isReviewing.set(true);
-      } else {
-          this.nextQuestion();
-      }
+      this.nextQuestion();
+      return;
     }
+
+    const selectedIndexes = Array.from(this.selectedAnswerIndexes()).sort((a, b) => a - b);
+    if (selectedIndexes.length === 0) return;
+
+    const correctIndexes = this.getCorrectAnswerIndexes(question);
+    const isCorrect = selectedIndexes.length === correctIndexes.length
+      && selectedIndexes.every((index, position) => index === correctIndexes[position]);
+
+    this.answers.update((answers) => [...answers, {
+      questionId: question.id,
+      selectedAlternativeIndices: selectedIndexes,
+      isCorrect,
+    }]);
+
+    this.nextQuestion();
   }
 
   nextQuestion(): void {
     if (!this.isLastQuestion()) {
-      this.currentQuestionIndex.update(i => i + 1);
+      this.currentQuestionIndex.update((index) => index + 1);
       this.resetQuestionState();
-    } else {
-      this.finishQuiz();
+      return;
     }
-  }
 
-  next(): void {
-    // This is only called from the button that appears when !isInlinePlayer()
-    this.exitPreview.emit();
+    this.finishQuiz();
   }
 
   finishQuiz(): void {
-    if (this.quizData().quizType === 'evaluative') {
-        const correctCount = this.answers().filter(a => a.isCorrect).length;
-        this.correctAnswers.set(correctCount);
-        const totalQuestions = this.questions().length;
-        this.score.set(totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0);
-    }
+    const correctCount = this.answers().filter((answer) => answer.isCorrect).length;
+    this.correctAnswers.set(correctCount);
+
+    const totalQuestions = this.activeQuestions().length;
+    this.score.set(totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0);
     this.quizState.set('finished');
 
     if (this.isInlinePlayer()) {
       this.quizCompleted.emit();
     }
   }
-  
-  private resetQuestionState(): void {
-    this.selectedAnswerIndex.set(null);
-    this.openTextAnswer.set('');
-    this.isReviewing.set(false);
-  }
 
   getAlternativeLetter(index: number): string {
     return String.fromCharCode(65 + index);
   }
-  
-  getAlternativeClass(question: QuizQuestion, index: number): string {
-    const isSelected = index === this.selectedAnswerIndex();
 
-    if (this.quizData().quizType === 'survey') {
-        if (isSelected) {
-            return 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300';
-        }
-        return 'border-gray-300 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50/50 dark:hover:bg-purple-900/20';
-    }
-
-    // While reviewing the answer (evaluative)
-    if (this.isReviewing()) {
-      const isCorrect = index === question.correctAnswerIndex;
-      if (isCorrect) {
-        return 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300';
-      }
-      if (isSelected && !isCorrect) {
-        return 'border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300';
-      }
-      return 'border-gray-300 dark:border-gray-600 opacity-70';
-    }
-
-    // While selecting an answer (evaluative)
-    if (isSelected) {
+  getAlternativeClass(index: number): string {
+    if (this.selectedAnswerIndexes().has(index)) {
       return 'border-purple-500 bg-purple-50 dark:bg-purple-900/30';
     }
 
-    // Default state
     return 'border-gray-300 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50/50 dark:hover:bg-purple-900/20';
+  }
+
+  private resetQuestionState(): void {
+    this.selectedAnswerIndexes.set(new Set());
+    this.openTextAnswer.set('');
+  }
+
+  private getCorrectAnswerIndexes(question: QuizQuestion): number[] {
+    if (question.correctAnswerIndexes?.length) {
+      return [...question.correctAnswerIndexes].sort((a, b) => a - b);
+    }
+
+    if (question.correctAnswerIndex != null) {
+      return [question.correctAnswerIndex];
+    }
+
+    return [];
+  }
+
+  private normalizeQuestion(question: QuizQuestion): QuizQuestion {
+    const correctAnswerIndexes = this.getCorrectAnswerIndexes(question);
+    return {
+      ...question,
+      alternatives: [...(question.alternatives ?? [])],
+      correctAnswerIndexes,
+      correctAnswerIndex: correctAnswerIndexes[0] ?? null,
+    };
+  }
+
+  private shuffle<T>(items: T[]): T[] {
+    const next = [...items];
+    for (let index = next.length - 1; index > 0; index--) {
+      const randomIndex = Math.floor(Math.random() * (index + 1));
+      [next[index], next[randomIndex]] = [next[randomIndex], next[index]];
+    }
+    return next;
   }
 }

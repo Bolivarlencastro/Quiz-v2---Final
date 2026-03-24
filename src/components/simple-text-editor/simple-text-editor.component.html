@@ -1,13 +1,15 @@
 <div class="editor-container">
   <div class="toolbar">
-    <button (click)="execCommand('bold')" title="Bold"><span class="material-symbols-outlined">format_bold</span></button>
-    <button (click)="execCommand('italic')" title="Italic"><span class="material-symbols-outlined">format_italic</span></button>
-    <button (click)="execCommand('underline')" title="Underline"><span class="material-symbols-outlined">format_underlined</span></button>
+    <button type="button" (click)="execCommand('bold')" title="Negrito" aria-label="Negrito"><span class="material-symbols-outlined">format_bold</span></button>
+    <button type="button" (click)="execCommand('italic')" title="Italico" aria-label="Italico"><span class="material-symbols-outlined">format_italic</span></button>
+    <button type="button" (click)="execCommand('underline')" title="Sublinhado" aria-label="Sublinhado"><span class="material-symbols-outlined">format_underlined</span></button>
+    <button type="button" (click)="execCommand('strikeThrough')" title="Tachado" aria-label="Tachado"><span class="material-symbols-outlined">format_strikethrough</span></button>
     <div class="separator"></div>
-    <button (click)="execCommand('insertUnorderedList')" title="Unordered List"><span class="material-symbols-outlined">format_list_bulleted</span></button>
-    <button (click)="execCommand('insertOrderedList')" title="Ordered List"><span class="material-symbols-outlined">format_list_numbered</span></button>
+    <button type="button" (click)="execCommand('insertOrderedList')" title="Lista numerada" aria-label="Lista numerada"><span class="material-symbols-outlined">format_list_numbered</span></button>
+    <button type="button" (click)="execCommand('insertUnorderedList')" title="Lista com marcadores" aria-label="Lista com marcadores"><span class="material-symbols-outlined">format_list_bulleted</span></button>
     <div class="separator"></div>
-    <button (click)="createLink()" title="Insert Link"><span class="material-symbols-outlined">link</span></button>
+    <button type="button" (click)="createLink()" title="Inserir link" aria-label="Inserir link"><span class="material-symbols-outlined">link</span></button>
+    <button type="button" (click)="clearFormatting()" title="Limpar formatacao" aria-label="Limpar formatacao"><span class="material-symbols-outlined">format_clear</span></button>
   </div>
-  <div #editor class="editor-content" contenteditable="true"></div>
+  <div #editor class="editor-content" contenteditable="true" placeholder="Digite a pergunta"></div>
 </div>

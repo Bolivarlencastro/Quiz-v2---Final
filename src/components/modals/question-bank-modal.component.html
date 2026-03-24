@@ -1,4 +1,4 @@
-<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] animate-fade-in" (click)="close.emit()">
+<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[90] animate-fade-in" (click)="close.emit()">
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl h-[80vh] flex flex-col m-4 animate-scale-up" (click)="$event.stopPropagation()">
     <!-- Header -->
     <header class="p-6 border-b dark:border-gray-700 flex justify-between items-center shrink-0">
@@ -19,8 +19,8 @@
     <!-- Content -->
     <main class="flex-1 overflow-y-auto p-6 space-y-3">
         @for(question of filteredQuestions(); track question.id) {
-            <label [for]="'q-bank-' + question.id" 
-                   class="flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-colors"
+	            <label [for]="'q-bank-' + question.id" 
+	                   class="flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-colors"
                    [class.bg-purple-50]="isSelected(question.id)"
                    [class.dark:bg-purple-900/20]="isSelected(question.id)"
                    [class.border-purple-300]="isSelected(question.id)"
@@ -30,14 +30,21 @@
                    [class.hover:bg-gray-50]="!isSelected(question.id)"
                    [class.dark:hover:bg-gray-700/50]="!isSelected(question.id)"
             >
-                <input type="checkbox" [id]="'q-bank-' + question.id" [checked]="isSelected(question.id)" (change)="toggleSelection(question.id)" class="mt-1 h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 shrink-0">
-                <div class="flex-1">
-                    <p class="font-semibold text-gray-800 dark:text-gray-200">{{ stripHtml(question.questionText) }}</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Resposta Correta: {{ question.alternatives[question.correctAnswerIndex] }}
-                    </p>
-                </div>
-            </label>
+                <input type="checkbox" [id]="'q-bank-' + question.id" [checked]="isSelected(question.id)" (change)="toggleSelection(question.id)" class="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 shrink-0">
+	                <div class="flex-1">
+	                    <p class="font-semibold text-gray-800 dark:text-gray-200">{{ stripHtml(question.questionText) }}</p>
+	                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+	                        Respostas corretas: {{ getCorrectAnswers(question) }}
+	                    </p>
+	                </div>
+                  <button
+                    type="button"
+                    (click)="removeFromBank(question.id, $event)"
+                    class="kp-icon-btn kp-icon-btn-danger shrink-0"
+                    title="Remover do banco de questões">
+                    <span class="material-symbols-outlined text-base">delete</span>
+                  </button>
+	            </label>
         } @empty {
             <p class="text-center text-gray-500 dark:text-gray-400 py-8">Nenhuma questão encontrada.</p>
         }

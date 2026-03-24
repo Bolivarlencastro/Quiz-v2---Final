@@ -392,6 +392,7 @@ export class CoursePlayerComponent implements OnDestroy {
             newCourse.topics.push({
                 id: `debug_topic_${i}`,
                 title: `Tópico de Debug ${i + 1}`,
+                description: `Descrição de debug do tópico ${i + 1}.`,
                 contents: [
                      { id: `debug_content_${i}`, type: 'document', title: `Conteúdo de Exemplo ${i + 1}`, description: '', source: ''}
                 ]
