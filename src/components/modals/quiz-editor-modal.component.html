@@ -50,13 +50,8 @@
         @if (viewState() === 'import') {
           <div class="quiz-import-panel" id="quiz-import" [class.highlight-feature]="highlightedElementId() === 'quiz-import'">
             <p class="quiz-import-copy">
-              Para importar multiplas questoes, baixe o modelo de planilha, preencha os dados e envie o arquivo no formato <code>.csv</code>.
+              Para importar questoes, baixe o modelo de planilha, preencha os dados e envie o arquivo no formato <code>.csv</code>. A importacao exige conferencia antes da confirmacao e nao processa parcialmente se houver erros.
             </p>
-
-            <button type="button" class="quiz-editor-action quiz-editor-action-link" (click)="downloadTemplate()">
-              <span class="material-symbols-outlined">download</span>
-              Baixar modelo
-            </button>
 
             <label
               for="csv-upload"
@@ -71,10 +66,17 @@
             </label>
             <input id="csv-upload" type="file" class="quiz-import-input" accept=".csv" (change)="onFileSelected($event)">
 
-            @if (importError(); as errorMessage) {
+            @if (importErrors().length > 0) {
               <div class="quiz-import-message is-error">
                 <span class="material-symbols-outlined">error</span>
-                <span>{{ errorMessage }}</span>
+                <div class="quiz-import-error-copy">
+                  <strong>Foram encontrados erros na planilha.</strong>
+                  <ul class="quiz-import-error-list">
+                    @for (errorMessage of importErrors(); track errorMessage) {
+                      <li>{{ errorMessage }}</li>
+                    }
+                  </ul>
+                </div>
               </div>
             }
 
@@ -82,8 +84,61 @@
               @if (parsedQuestions().length > 0) {
                 <div class="quiz-import-message is-success">
                   <span class="material-symbols-outlined">check_circle</span>
-                  <span>Arquivo <strong>{{ selectedFile.name }}</strong> carregado com <strong>{{ parsedQuestions().length }}</strong> questoes validas.</span>
+                  <span>Arquivo <strong>{{ selectedFile.name }}</strong> validado com <strong>{{ parsedQuestions().length }}</strong> questoes prontas para conferencia.</span>
                 </div>
+
+                <section class="quiz-import-preview">
+                  <div class="quiz-import-preview-header">
+                    <div>
+                      <h3>Conferencia da importacao</h3>
+                      <p>Revise as questoes antes de importar e escolha quais devem entrar no banco.</p>
+                    </div>
+
+                    <button
+                      type="button"
+                      class="quiz-editor-action quiz-editor-action-link"
+                      (click)="setAllImportedQuestionsInBank(!allImportedQuestionsInBank())">
+                      @if (allImportedQuestionsInBank()) {
+                        Remover todas do banco
+                      } @else {
+                        Adicionar todas ao banco
+                      }
+                    </button>
+                  </div>
+
+                  <div class="quiz-import-preview-list">
+                    @for (question of parsedQuestions(); track question.id; let index = $index) {
+                      <article class="quiz-import-preview-card">
+                        <div class="quiz-import-preview-card-header">
+                          <span class="quiz-import-preview-title">Pergunta {{ index + 1 }}</span>
+                          <label class="quiz-editor-bank-toggle-row">
+                            <span>Adicionar ao banco de questoes</span>
+                            <input
+                              type="checkbox"
+                              [ngModel]="question.isInBank"
+                              (ngModelChange)="toggleImportedQuestionBank(question.id, $event)"
+                              class="quiz-editor-toggle">
+                          </label>
+                        </div>
+
+                        <p class="quiz-editor-preview-question">{{ stripHtml(question.questionText) || 'Sem enunciado' }}</p>
+
+                        <div class="quiz-editor-preview-options">
+                          @for (alternative of question.alternatives; track $index) {
+                            <div class="quiz-editor-preview-option">
+                              <span
+                                class="material-symbols-outlined"
+                                [class.is-hidden]="!(question.correctAnswerIndexes ?? []).includes($index)">
+                                check_circle
+                              </span>
+                              <p>{{ alternative }}</p>
+                            </div>
+                          }
+                        </div>
+                      </article>
+                    }
+                  </div>
+                </section>
               }
             }
           </div>
@@ -164,7 +219,7 @@
 
                         <div class="quiz-editor-inline-meta">
                           <label class="quiz-editor-bank-toggle-row">
-                            <span>Adicionar esta questao ao banco de questoes para reuso futuro.</span>
+                            <span>Adicionar ao banco de questoes</span>
                             <input type="checkbox" [ngModel]="question.isInBank" (ngModelChange)="toggleQuestionBank(question.id, $event)" class="quiz-editor-toggle">
                           </label>
                         </div>
@@ -206,6 +261,12 @@
             <button type="button" class="quiz-editor-action quiz-editor-action-primary" (click)="handlePublish()" [disabled]="!canPublish()">Publicar quiz</button>
           </div>
         } @else {
+          <div class="quiz-editor-footer-left">
+            <button type="button" class="quiz-editor-action quiz-editor-action-link" (click)="downloadTemplate()">
+              <span class="material-symbols-outlined">download</span>
+              Baixar modelo
+            </button>
+          </div>
           <div class="quiz-editor-footer-right">
             <button type="button" class="quiz-editor-action quiz-editor-action-secondary" (click)="switchToEditorView()">Cancelar</button>
             <button type="button" class="quiz-editor-action quiz-editor-action-primary" (click)="handleImport()" [disabled]="parsedQuestions().length === 0">Importar questoes</button>

@@ -10,6 +10,13 @@ import { upsertQuestionInBank } from '../../question-bank.store';
 type ActiveTab = 'questions' | 'settings';
 type ViewState = 'editor' | 'import';
 
+type ParsedCsvQuestionGroup = {
+  id: string;
+  questionText: string;
+  alternatives: string[];
+  correctAnswerIndexes: number[];
+};
+
 @Component({
   selector: 'app-quiz-builder-modal',
   imports: [CommonModule, FormsModule, SimpleTextEditorComponent, TooltipDirective, QuestionBankModalComponent],
@@ -35,11 +42,20 @@ export class QuizBuilderModalComponent {
 
   draggingOver = signal(false);
   importFile = signal<File | null>(null);
-  importError = signal<string | null>(null);
+  importErrors = signal<string[]>([]);
   parsedQuestions = signal<QuizQuestion[]>([]);
-  readonly CSV_TEMPLATE = `ENUNCIADO,ALTERNATIVA A,ALTERNATIVA B,ALTERNATIVA C,ALTERNATIVA D,ALTERNATIVA E,ALTERNATIVA F,ALTERNATIVA G,ALTERNATIVA H,ALTERNATIVA I,ALTERNATIVA J,ALTERNATIVA CORRETA\n"Qual destes animais é um mamífero?","Golfinho","Pardal","Tartaruga","","","","","","","","A"`;
+  readonly CSV_TEMPLATE = `ID,ENUNCIADO,ALTERNATIVA,CORRETA
+Q1,"Qual destes animais e um mamifero?","Golfinho","SIM"
+Q1,"Qual destes animais e um mamifero?","Pardal","NAO"
+Q1,"Qual destes animais e um mamifero?","Tartaruga","NAO"
+Q2,"Selecione os itens obrigatorios para iniciar o projeto","Briefing aprovado","SIM"
+Q2,"Selecione os itens obrigatorios para iniciar o projeto","Escopo definido","SIM"
+Q2,"Selecione os itens obrigatorios para iniciar o projeto","Cafe na copa","NAO"`;
 
   isEditing = computed(() => !!this.initialPulseData()?.name);
+  allImportedQuestionsInBank = computed(() =>
+    this.parsedQuestions().length > 0 && this.parsedQuestions().every((question) => question.isInBank),
+  );
 
   canPublish = computed(() => {
     const quiz = this.quiz();
@@ -204,11 +220,18 @@ export class QuizBuilderModalComponent {
   }
 
   setCorrectAlternative(questionId: string, index: number): void {
-    this.updateQuestion(questionId, (question) => ({
-      ...question,
-      correctAnswerIndexes: [index],
-      correctAnswerIndex: index,
-    }));
+    this.updateQuestion(questionId, (question) => {
+      const alreadySelected = this.getCorrectIndexes(question).includes(index);
+      const correctAnswerIndexes = alreadySelected
+        ? this.getCorrectIndexes(question).filter((selectedIndex) => selectedIndex !== index)
+        : [...this.getCorrectIndexes(question), index].sort((left, right) => left - right);
+
+      return {
+        ...question,
+        correctAnswerIndexes,
+        correctAnswerIndex: correctAnswerIndexes[0] ?? null,
+      };
+    });
   }
 
   toggleQuestionBank(questionId: string, inBank: boolean): void {
@@ -219,6 +242,16 @@ export class QuizBuilderModalComponent {
       }
       return nextQuestion;
     });
+  }
+
+  toggleImportedQuestionBank(questionId: string, inBank: boolean): void {
+    this.parsedQuestions.update((questions) =>
+      questions.map((question) => (question.id === questionId ? { ...question, isInBank: inBank } : question)),
+    );
+  }
+
+  setAllImportedQuestionsInBank(inBank: boolean): void {
+    this.parsedQuestions.update((questions) => questions.map((question) => ({ ...question, isInBank: inBank })));
   }
 
   handlePublish(): void {
@@ -239,7 +272,7 @@ export class QuizBuilderModalComponent {
     this.viewState.set('editor');
     this.draggingOver.set(false);
     this.importFile.set(null);
-    this.importError.set(null);
+    this.importErrors.set([]);
     this.parsedQuestions.set([]);
   }
 
@@ -248,7 +281,7 @@ export class QuizBuilderModalComponent {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', 'modelo_quiz.csv');
+    link.setAttribute('download', 'modelo_quiz_importacao.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -290,14 +323,21 @@ export class QuizBuilderModalComponent {
   }
 
   handleImport(): void {
-    if (this.parsedQuestions().length > 0) {
-      const importedQuestions = this.parsedQuestions().map((question) => this.normalizeQuestion(question));
-      this.quiz.update((quiz) => ({
-        ...quiz,
-        questions: [...(quiz.questions ?? []), ...importedQuestions],
-      }));
-      this.expandedQuestionIds.set(importedQuestions.map((question) => question.id));
+    if (this.parsedQuestions().length === 0 || this.importErrors().length > 0) {
+      return;
     }
+
+    const importedQuestions = this.parsedQuestions().map((question) => this.normalizeQuestion(question));
+    this.quiz.update((quiz) => ({
+      ...quiz,
+      questions: [...(quiz.questions ?? []), ...importedQuestions],
+    }));
+
+    importedQuestions
+      .filter((question) => question.isInBank)
+      .forEach((question) => upsertQuestionInBank(question));
+
+    this.expandedQuestionIds.set(importedQuestions.map((question) => question.id));
     this.switchToEditorView();
   }
 
@@ -320,11 +360,12 @@ export class QuizBuilderModalComponent {
   }
 
   private processFile(file: File): void {
-    this.importError.set(null);
+    this.importErrors.set([]);
     this.parsedQuestions.set([]);
 
-    if (file.type !== 'text/csv') {
-      this.importError.set('Formato de arquivo inválido. Por favor, envie um arquivo .csv');
+    const isCsv = file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv');
+    if (!isCsv) {
+      this.importErrors.set(['Formato de arquivo inválido. Envie um arquivo .csv.']);
       this.importFile.set(null);
       return;
     }
@@ -336,7 +377,7 @@ export class QuizBuilderModalComponent {
       this.parseCSV(text);
     };
     reader.onerror = () => {
-      this.importError.set('Não foi possível ler o arquivo.');
+      this.importErrors.set(['Não foi possível ler o arquivo.']);
       this.importFile.set(null);
     };
     reader.readAsText(file);
@@ -349,56 +390,146 @@ export class QuizBuilderModalComponent {
         throw new Error('O arquivo CSV está vazio ou contém apenas o cabeçalho.');
       }
 
-      const header = lines[0].split(',').map((item) => item.trim().toUpperCase());
-      const expectedHeader = ['ENUNCIADO', 'ALTERNATIVA A', 'ALTERNATIVA CORRETA'];
-      if (!expectedHeader.every((item) => header.includes(item))) {
-        throw new Error('O cabeçalho do arquivo CSV é inválido. Verifique o modelo.');
+      const header = this.parseCsvRow(lines[0]).map((item) => item.trim().toUpperCase());
+      const requiredHeaders = ['ID', 'ENUNCIADO', 'ALTERNATIVA', 'CORRETA'];
+      if (!requiredHeaders.every((item) => header.includes(item))) {
+        throw new Error('O cabeçalho do arquivo CSV é inválido. Use o modelo disponibilizado.');
       }
 
-      const questions: QuizQuestion[] = [];
-      for (let i = 1; i < lines.length; i++) {
-        const data = lines[i].split(',');
-        const questionText = data[header.indexOf('ENUNCIADO')]?.replace(/"/g, '').trim();
-        if (!questionText) continue;
+      const groups = new Map<string, ParsedCsvQuestionGroup>();
+      const errors: string[] = [];
 
-        const alternatives: string[] = [];
-        for (let j = 1; j <= 10; j++) {
-          const alternativeHeader = `ALTERNATIVA ${String.fromCharCode(64 + j)}`;
-          const alternativeIndex = header.indexOf(alternativeHeader);
-          if (alternativeIndex > -1 && data[alternativeIndex]?.trim()) {
-            alternatives.push(data[alternativeIndex].replace(/"/g, '').trim());
-          }
+      for (let lineIndex = 1; lineIndex < lines.length; lineIndex++) {
+        const row = this.parseCsvRow(lines[lineIndex]);
+        const id = this.getColumnValue(header, row, 'ID');
+        const questionText = this.getColumnValue(header, row, 'ENUNCIADO');
+        const alternative = this.getColumnValue(header, row, 'ALTERNATIVA');
+        const correctValue = this.getColumnValue(header, row, 'CORRETA');
+        const lineNumber = lineIndex + 1;
+
+        if (!id) {
+          errors.push(`Linha ${lineNumber}: o campo ID é obrigatório.`);
+          continue;
         }
 
-        const correctAnswerLetter = data[header.indexOf('ALTERNATIVA CORRETA')]?.trim().toUpperCase();
-        if (!correctAnswerLetter || alternatives.length < 2) continue;
+        if (!correctValue) {
+          errors.push(`Linha ${lineNumber}: o campo CORRETA é obrigatório.`);
+          continue;
+        }
 
-        const correctAnswerIndex = correctAnswerLetter.charCodeAt(0) - 65;
-        if (correctAnswerIndex < 0 || correctAnswerIndex >= alternatives.length) continue;
+        const isCorrect = this.parseCorrectFlag(correctValue);
+        if (isCorrect == null) {
+          errors.push(`Linha ${lineNumber}: o campo CORRETA deve ser preenchido com SIM ou NAO.`);
+          continue;
+        }
 
-        questions.push({
-          id: `csv_${Date.now()}_${i}`,
+        if (!alternative) {
+          errors.push(`Linha ${lineNumber}: a alternativa é obrigatória.`);
+          continue;
+        }
+
+        const group = groups.get(id) ?? {
+          id,
+          questionText: '',
+          alternatives: [],
+          correctAnswerIndexes: [],
+        };
+
+        if (questionText && !group.questionText) {
+          group.questionText = questionText;
+        }
+
+        group.alternatives.push(alternative);
+        if (isCorrect) {
+          group.correctAnswerIndexes.push(group.alternatives.length - 1);
+        }
+
+        groups.set(id, group);
+      }
+
+      const questions = Array.from(groups.values()).map((group, index) => {
+        if (group.alternatives.length < 2) {
+          errors.push(`Questão ${group.id}: é obrigatório informar pelo menos 2 alternativas.`);
+        }
+
+        if (group.correctAnswerIndexes.length === 0) {
+          errors.push(`Questão ${group.id}: informe ao menos uma alternativa correta.`);
+        }
+
+        return this.normalizeQuestion({
+          id: `csv_${group.id}_${Date.now()}_${index}`,
           questionType: 'multipleChoice',
-          questionText,
-          alternatives,
-          correctAnswerIndexes: [correctAnswerIndex],
-          correctAnswerIndex,
+          questionText: group.questionText || group.id,
+          alternatives: group.alternatives,
+          correctAnswerIndexes: group.correctAnswerIndexes,
+          correctAnswerIndex: group.correctAnswerIndexes[0] ?? null,
           imageUrl: null,
           imagePosition: 'before',
           isInBank: false,
         });
+      });
+
+      if (errors.length > 0) {
+        this.importErrors.set(errors);
+        this.parsedQuestions.set([]);
+        return;
       }
 
       if (questions.length === 0) {
         throw new Error('Nenhuma questão válida foi encontrada no arquivo.');
       }
 
+      this.importErrors.set([]);
       this.parsedQuestions.set(questions);
     } catch (error: any) {
-      this.importError.set(error.message);
+      this.importErrors.set([error.message]);
       this.importFile.set(null);
       this.parsedQuestions.set([]);
     }
+  }
+
+  private parseCsvRow(row: string): string[] {
+    const values: string[] = [];
+    let current = '';
+    let isInsideQuotes = false;
+
+    for (let index = 0; index < row.length; index++) {
+      const character = row[index];
+
+      if (character === '"') {
+        const nextCharacter = row[index + 1];
+        if (isInsideQuotes && nextCharacter === '"') {
+          current += '"';
+          index++;
+        } else {
+          isInsideQuotes = !isInsideQuotes;
+        }
+        continue;
+      }
+
+      if (character === ',' && !isInsideQuotes) {
+        values.push(current.trim());
+        current = '';
+        continue;
+      }
+
+      current += character;
+    }
+
+    values.push(current.trim());
+    return values;
+  }
+
+  private getColumnValue(header: string[], row: string[], columnName: string): string {
+    const index = header.indexOf(columnName);
+    return index === -1 ? '' : (row[index] ?? '').trim();
+  }
+
+  private parseCorrectFlag(value: string): boolean | null {
+    const normalized = value.trim().toUpperCase();
+    if (['SIM', 'TRUE', '1', 'S'].includes(normalized)) return true;
+    if (['NAO', 'NÃO', 'FALSE', '0', 'N'].includes(normalized)) return false;
+    return null;
   }
 
   private normalizeQuiz(quiz: Pulse): Pulse {
