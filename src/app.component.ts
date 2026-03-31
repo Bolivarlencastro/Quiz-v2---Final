@@ -16,101 +16,126 @@ import { EMPTY_COURSE } from './mock-data';
 
 type ViewState = 'courseWizard' | 'coursePlayer';
 
-const STORY_MAP_MARKDOWN = `## GESTÃO DE QUIZZES
+const STORY_MAP_MARKDOWN = `## QUIZ V2 - CENTRAL IT
 
-### NOVO TIPO DE QUIZ
-#### Quizes de Pesquisa
-##### v1.0
-**Como criador, quero criar um quiz de pesquisa de opinião para coletar informações qualitativas e quantitativas dos usuários**
-- [ ] Posso criar quizzes com perguntas abertas (Open-Ended Question) ou de múltipla escolha (Single-Select Multiple Choice).
-  - [Navegar para componente](app://quiz-survey-type)
-- [ ] Não há limite para a criação desse tipo de quiz.
-- [ ] Perguntas abertas terão apenas o nome da lição e a pergunta.
-- [ ] Perguntas de multipla escolha terão o nome da lição, a pergunta, e suas alternativas.
-- [ ] Posso definir até 5 alternativas para cada pergunta.
-- [ ] Não há a possibilidade de escolher qual é a alternativa correta.
-- [ ] As respostas não irão interferir na performance dos usuários respondentes.
+### Entrega e prioridade
+#### Versao curta
+##### Prioritaria
+**Como time de produto, quero entregar o menor escopo necessario para a Central IT sem refacao desnecessaria**
+- [x] Permitir criar mais questoes do que o necessario em um quiz.
+- [x] Permitir definir quantas questoes devem aparecer em cada execucao do quiz.
+- [x] Manter o que ja funciona e alterar somente o que foi pedido.
 
-**Como usuário consumidor de conteúdos, quero responder as pesquisas de opinião dos cursos que estou consumindo**
-- [ ] Posso escrever até 2000 caracteres nas perguntas abertas (Open-Ended Question).
-- [ ] Posso selecionar apenas uma alternativa nas perguntas de multipla escolha (Single-Select Multiple Choice).
-- [ ] Não há alternativa correta, portanto, não receberei feedback em nenhuma resposta.
-- [ ] Não posso finalizar o curso sem responder as pesquisas.
+##### Intermediaria
+**Como time de produto, quero viabilizar reutilizacao simples de questoes**
+- [x] Permitir incluir questoes no banco de questoes.
+- [x] Permitir buscar e reutilizar questoes do banco com pesquisa simples.
 
-### NOVAS MECÂNICAS PARA OS QUIZZES
-#### Banco de questões geral da workspace
-##### v1.1
-**Durante a criação ou edição de um conteúdo do tipo quiz, quero ADICIONAR as questões a um banco para reutilizá-las em outros quizzes.**
-- [ ] Ao criar uma questão dentro de um quiz, terei a opção de adicioná-la ao banco de questões da workspace.
-- [ ] Posso adicionar uma quantidade ilimitada de questões no banco de questões da workspace.
-- [ ] Ao reutilizar uma questão em outro quiz, terei automaticamente o enunciado da pergunta, suas alternativas e a resposta correta.
-
-**Durante a exclusão ou edição de um conteúdo do tipo quiz, quero REMOVER as questões do banco para deixá-lo mais organizado sem conteúdos obsoletos.**
-- [ ] Ao excluir um quiz de um curso, terei a opção de remover todas suas questões do banco de questões da workspace.
-- [ ] Ao excluir uma questão de um quiz, terei a opção de removê-la do banco de questões da workspace.
-- [ ] Serei impedido de excluir uma questão do banco de questões da workspace caso ela esteja vinculada a outro curso, independente do seu status de criação.
-
-**Durante a criação ou edição de um conteúdo do tipo quiz, quero REAPROVEITAR as questões presentes no banco de questões da workspace para incluí-las no conteúdo.**
-- [ ] Posso adicionar uma quantidade ilimitada de questões do banco da workspace em um curso.
-  - [Navegar para componente](app://quiz-question-bank)
-- [ ] Posso adicionar a mesma questão em uma quantidade ilimitada de cursos.
-- [ ] Não posso adicionar a mesma questão do banco em um mesmo quiz.
-- [ ] Posso adicionar diversas questões ao mesmo tempo em um mesmo quiz (ação em lote de adição).
-
-### CONFIGURAÇÕES DO QUIZ
-#### Comportamento e Regras
-##### v1.1
-**Durante a criação ou edição de um quiz, quero que todas as questões adicionadas formem um banco de questões específico, para que eu possa RANDOMIZÁ-LAS e selecionar a quantidade desejada para exibição aos usuários.**
-- [ ] Todas as questões adicionadas ao quiz formarão o banco de questões do quiz.
-  - [Navegar para componente](app://quiz-setting-randomize)
-- [ ] Posso randomizar a ordem das perguntas desse banco, que serão exibidas ao usuário na plataforma durante a realização do quiz.
-- [ ] Posso selecionar uma quantidade específica de questões dentro do banco para serem apresentadas ao usuário durante o consumo do quiz.
-- [ ] Cada usuário que acessar o quiz verá um conjunto de questões aleatórias, com a quantidade definida, extraídas do banco de questões do quiz.
-- [ ] Caso o usuário inicie o consumo do quiz e saia da classroom, a ordem das questões não será alterada.
-
-**Durante a criação ou edição de um quiz, quero definir se o FEEDBACK DAS RESPOSTAS será exibido imediatamente após cada questão ou apenas ao final do quiz.**
-- [ ] Posso definir se o feedback (certo, errado, parcial) da resposta do usuário será imediato ou no final do quiz.
-  - [Navegar para componente](app://quiz-setting-feedback)
-- [ ] O feedback imediato será enviado assim que o usuário submeter a resposta.
-- [ ] O feedback ao final do quiz será enviado assim que o usuário submeter a resposta da última questão do quiz.
-- [ ] O feedback ao final trará o total de erros e acertos.
-
-**Durante a criação ou edição de um quiz, quero definir um número de TENTATIVAS máximo para que cada usuário possa responder todas as questões presentes no quiz.**
-- [ ] Posso definir um número máximo de tentativas de resposta do quiz para o usuário. 
-  - [Navegar para componente](app://quiz-setting-attempts)
-- [ ] Após a ultima pergunta do quiz, o usuário terá a opção de refazer o quiz novamente.
-- [ ] O usuário poderá responder todas as questões do quiz novamente até que o limite de vezes definida pelo admin seja atingido.
-- [ ] O histórico das respostas não será salvo entre as tentativas.
-
-**No editor de quizzes, posso definir um LIMITE DE TEMPO para que o participante finalize todo o conteúdo. Quando esse tempo expira, o quiz será automaticamente encerrado e o usuário seguirá para o próximo conteúdo.**
-- [ ] Posso definir o total de minutos que o usuário terá para responder todo o quiz.
-  - [Navegar para componente](app://quiz-setting-time-limit)
-- [ ] O tempo não pode ser interrompido de forma alguma.
-- [ ] Caso o usuário saia da página, o tempo deverá ser retomado de onde foi interrompido.
-- [ ] Quando o tempo expirar, o usuário não poderá mais responder o quiz.
-- [ ] Quando o tempo expirar, o sistema salvará as respostas do usuário até o momento.
-- [ ] Caso hajam questões sem resposta, o sistema contará como resposta incorreta.
-
-### IMPORTAÇÃO DE QUESTÕES
-#### Criação em Lote
-##### v1.2
-**Durante a criação ou edição de um quiz, quero baixar uma planilha modelo fornecida pelo sistema para preencher e realizar o upload de múltiplas questões de forma rápida e padronizada durante a criação ou edição de um quiz**
-- [ ] Posso realizar o download da planilha modelo durante a criação ou edição do quiz.
+##### Golden plate
+**Como admin, quero importar questoes por planilha com conferencia antes do salvamento**
+- [x] Implementar importacao via planilha somente depois das prioridades anteriores.
   - [Navegar para componente](app://quiz-import)
-- [ ] Posso editar as questões dentro do quiz após a importação da tabela.
-- [ ] Assim como as questões criadas manualmente, posso optar por adicionar as questões criadas via planilha no banco de questões da workspace.
-- [ ] Não posso criar questões de pesquisa via planilha.
 
-### QUIZZES COM IMAGENS
-#### Enriquecimento Visual
-##### v1.1
-**Durante a criação ou edição de uma questão, quero adicionar uma imagem ao enunciado para fornecer apoio visual e melhorar a compreensão dos usuários.**
-- [x] Posso fazer o upload de uma imagem no formulário de edição de questão.
+### Home e entrada no quiz
+#### Fluxo inicial
+##### Base obrigatoria
+**Como usuario, quero entrar no quiz pelo fluxo novo sem adicionar etapas desnecessarias**
+- [x] Aproximar a tela inicial do modelo visual ja apresentado.
+- [x] Ao clicar no quiz, cair direto na tela de configuracao ou edicao correspondente.
+- [x] Nao exibir o nome do quiz nesse clique inicial.
+- [x] Inserir o nome do quiz em outro momento, conforme o novo prototipo.
+
+### Botoes e recursos indisponiveis
+#### Fora do escopo desta versao
+##### Base obrigatoria
+**Como usuario, quero entender claramente o que ainda nao foi entregue**
+- [x] Todo botao indicado como nao implementado deve ficar desabilitado.
+- [x] Todo botao desabilitado deve exibir a mensagem Em desenvolvimento.
+- [x] Nao incluir recurso de IA nesta primeira entrega.
+
+### Criacao e edicao de perguntas
+#### Tela da pergunta
+##### Base obrigatoria
+**Como conteudista, quero editar a pergunta com o visual correto e sem recursos fora do escopo**
+- [x] Atualizar a tela para ficar visualmente mais proxima da referencia original.
+- [x] Remover a imagem de apoio exibida na tela atual.
   - [Navegar para componente](app://quiz-image)
-- [x] Posso adicionar imagens em formato JPEG, PNG e WEBP.
-- [x] A imagem deve ter um tamanho máximo de 2MB e será redimensionada para uma largura máxima de 640px.
-- [x] Posso posicionar a imagem ANTES ou DEPOIS do texto do enunciado.
-- [x] Posso remover a imagem a qualquer momento.
+- [x] Permitir formatacao no enunciado.
+- [x] Nao permitir inclusao de imagens no enunciado nesta entrega.
+- [x] Manter alternativas textuais simples, sem formatacao.
+- [x] Manter regra atual de 2 ou mais alternativas por pergunta.
+- [x] Manter regra atual de 1 ou mais alternativas corretas.
+- [x] Permitir excluir perguntas e alternativas apenas durante a criacao do quiz.
+- [x] Depois de criado, nao permitir excluir perguntas ou alternativas.
+
+### Configuracoes do quiz
+#### Parametros disponiveis
+##### Base obrigatoria
+**Como editor, quero manter apenas as configuracoes necessarias para esta entrega**
+- [x] Remover parametros extras apontados nas referencias.
+- [x] Manter apenas a randomizacao da ordem das perguntas que ja existe hoje.
+  - [Navegar para componente](app://quiz-setting-randomize)
+- [x] Adicionar somente a configuracao de quantidade de perguntas exibidas no quiz.
+- [x] Selecionar essa quantidade a partir do total de perguntas cadastradas no quiz.
+
+##### Fora de escopo
+**Como time de produto, quero deixar claro o que fica para depois**
+- [ ] Nao entregar agora randomizacao avancada.
+- [ ] Nao entregar agora tentativas maximas.
+  - [Navegar para componente](app://quiz-setting-attempts)
+- [ ] Nao entregar agora limite de tempo.
+  - [Navegar para componente](app://quiz-setting-time-limit)
+- [ ] Nao entregar agora feedback imediato ou ao final do quiz.
+  - [Navegar para componente](app://quiz-setting-feedback)
+
+### Banco de questoes
+#### Inclusao, remocao e busca
+##### Intermediaria
+**Como conteudista, quero adicionar, remover e reaproveitar questoes do banco de forma simples**
+- [x] Toda pergunta criada pode ser adicionada ao banco por meio de uma flag booleana.
+- [x] Remover do banco significa tirar do banco, nao apagar a questao dos quizzes vinculados.
+- [x] Implementar remocao com uma flag booleana na tabela questions para indicar disponibilidade no banco.
+- [x] Qualquer usuario com permissao para criar conteudo pode remover do banco, mesmo sem ter criado a questao.
+- [x] Buscar no banco por titulo ou enunciado usando Postgres.
+- [x] Se for simples, incluir busca tambem nas alternativas.
+- [x] Nao enviar nada para Elastic nesta entrega.
+- [x] Permitir selecao acumulada em pesquisas sucessivas.
+  - [Navegar para componente](app://quiz-question-bank)
+
+### Importacao por planilha
+#### Fluxo e restricoes
+##### Golden plate
+**Como admin, quero importar varias questoes com preview e conferencia antes de salvar**
+- [x] Seguir o modelo de planilha mostrado na referencia.
+- [x] Nao usar modelo com alternativas em colunas fixas.
+- [x] Fazer upload e preview no front antes de salvar qualquer dado.
+- [x] Permitir que o admin escolha quais questoes farao parte do banco.
+- [x] Adicionar acao para selecionar todas ou adicionar todas ao banco.
+- [x] Bloquear importacao quando houver ao menos 1 questao ja cadastrada no formulario atual.
+- [x] Permitir apenas 1 processo de importacao por formulario carregado.
+- [x] Depois de importar, ainda permitir criar novas perguntas manualmente.
+
+### Validacoes da importacao
+#### Regras obrigatorias
+##### Golden plate
+**Como admin, quero receber erros claros e evitar cadastro parcial**
+- [x] Se faltar o enunciado, mas o ID estiver preenchido, cadastrar sem erro usando o ID como chave.
+- [x] Se faltar o ID, gerar erro informando que o ID e obrigatorio.
+- [x] Se faltar a marcacao de correta ou nao correta, gerar erro obrigatorio.
+- [x] Se faltar alternativas, nao cadastrar e informar inconsistencia de preenchimento.
+- [x] Tirando o caso aceito do ID sem enunciado, qualquer erro invalida a importacao inteira.
+- [x] Nao permitir cadastro parcial.
+- [x] Apresentar em tela a lista de erros para o admin.
+
+### Fora de escopo
+#### Nao entregar agora
+##### Fora de escopo
+**Como time de produto, quero registrar explicitamente o que nao entra na versao curta**
+- [ ] Nao incluir geracao de quizzes por IA a partir de transcricao.
+- [ ] Nao incluir search semantico com tags e Elastic.
+- [ ] Nao incluir novo tipo de quiz de pesquisa.
+- [ ] Nao incluir feedback com resposta da pergunta, alternativa correta e resposta textual.
+- [ ] Nao incluir imagens nas perguntas nesta entrega.
 `;
 
 @Component({

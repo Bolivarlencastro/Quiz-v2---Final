@@ -4,7 +4,7 @@
     <header class="flex-shrink-0 bg-white dark:bg-gray-800 rounded-t-lg p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
       <div class="flex-1 min-w-0">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white truncate">
-          Story Mapping: <span class="font-normal text-gray-700 dark:text-gray-300">{{ storyMapData.epic }}</span>
+          Requisitos: <span class="font-normal text-gray-700 dark:text-gray-300">{{ storyMapData.epic }}</span>
         </h2>
       </div>
       <div class="flex items-center gap-2 sm:gap-4">
@@ -20,7 +20,7 @@
           <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">expand_more</span>
         </div>
         <span class="text-sm text-gray-500 dark:text-gray-400 hidden md:block">Pressione 'S' para fechar</span>
-        <button (click)="close.emit()" class="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="Close Story Mapping">
+        <button (click)="close.emit()" class="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="Fechar requisitos">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
@@ -29,6 +29,10 @@
     <!-- Scrollable Content Area -->
     <main class="flex-1 bg-gray-100 dark:bg-gray-900 rounded-b-lg overflow-auto">
       <div class="inline-block min-w-full p-6 sm:p-8 align-top">
+        <p class="mb-6 max-w-4xl text-sm leading-6 text-gray-600 dark:text-gray-300">
+          Painel resumido da versao curta da Central IT, consolidado a partir de
+          <span class="font-semibold">REGRAS-CENTRAL-IT.md</span> e da apresentacao de referencia.
+        </p>
         <div class="flex items-start gap-4 pb-4">
           <!-- Activities -->
           @for (activity of storyMapData.activities; track activity.activity) {
@@ -97,6 +101,6 @@
   </div>
 } @else {
   <div class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 animate-fadeIn">
-    <p class="text-white">Carregando Story Map...</p>
+    <p class="text-white">Carregando requisitos...</p>
   </div>
 }
