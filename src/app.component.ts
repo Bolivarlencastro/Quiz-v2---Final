@@ -41,7 +41,7 @@ const STORY_MAP_MARKDOWN = `## QUIZ V2 - CENTRAL IT
 ##### Base obrigatoria
 **Como usuario, quero entrar no quiz pelo fluxo novo sem adicionar etapas desnecessarias**
 - [x] Aproximar a tela inicial do modelo visual ja apresentado.
-- [x] Ao clicar no quiz, cair direto na tela de configuracao ou edicao correspondente.
+- [x] Ao clicar em Quiz, abrir a dialog de criacao, exibir a selecao do tipo de quiz e, depois, a forma de criacao antes de seguir para a tela de configuracao ou edicao correspondente.
 - [x] Nao exibir o nome do quiz nesse clique inicial.
 - [x] Inserir o nome do quiz em outro momento, conforme o novo prototipo.
 
