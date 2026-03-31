@@ -19,47 +19,67 @@ type ViewState = 'courseWizard' | 'coursePlayer';
 const STORY_MAP_MARKDOWN = `## QUIZ V2 - CENTRAL IT
 
 ### Entrega e prioridade
-#### Versao curta
+#### Entrega parcial
 ##### Prioritaria
 **Como time de produto, quero entregar o menor escopo necessario para a Central IT sem refacao desnecessaria**
 - [x] Permitir criar mais questoes do que o necessario em um quiz.
 - [x] Permitir definir quantas questoes devem aparecer em cada execucao do quiz.
-- [x] Manter o que ja funciona e alterar somente o que foi pedido.
+- [x] Manter o modelo atual do quiz e alterar somente o que foi pedido.
 
 ##### Intermediaria
 **Como time de produto, quero viabilizar reutilizacao simples de questoes**
-- [x] Permitir incluir questoes no banco de questoes.
-- [x] Permitir buscar e reutilizar questoes do banco com pesquisa simples.
+- [x] Permitir incluir questoes em um banco global.
+- [x] Permitir buscar e reutilizar questoes do banco com busca simples.
 
 ##### Golden plate
-**Como admin, quero importar questoes por planilha com conferencia antes do salvamento**
+**Como admin, quero importar questoes por planilha com validacao completa e conferencia antes do salvamento**
 - [x] Implementar importacao via planilha somente depois das prioridades anteriores.
   - [Navegar para componente](app://quiz-import)
 
-### Home e entrada no quiz
-#### Fluxo inicial
+### Fora de escopo desta entrega
+#### Nao entregar agora
 ##### Base obrigatoria
-**Como usuario, quero entrar no quiz pelo fluxo novo sem adicionar etapas desnecessarias**
-- [x] Aproximar a tela inicial do modelo visual ja apresentado.
-- [x] Ao clicar em Quiz, abrir a dialog de criacao, exibir a selecao do tipo de quiz e, depois, a forma de criacao antes de seguir para a tela de configuracao ou edicao correspondente.
-- [x] Nao exibir o nome do quiz nesse clique inicial.
+**Como time de produto, quero registrar explicitamente o que nao entra nesta versao**
+- [ ] Nao incluir quiz do tipo Pesquisa nesta entrega.
+- [ ] Nao incluir geracao de questoes por IA.
+- [ ] Nao incluir busca semantica nem integracao com Elastic.
+- [ ] Nao incluir parametrizacao de tentativas maximas e tempo por quiz.
+- [ ] Nao incluir feedback com alternativa correta e texto explicativo.
+- [ ] Nao incluir imagens nas perguntas.
+- [ ] Nao incluir randomizacao das alternativas como configuracao independente.
+
+### Ajustes de UX
+#### Tela de conteudos do curso
+##### Base obrigatoria
+**Como usuario, quero entrar no fluxo novo do quiz sem refazer o restante da tela**
+- [x] Manter o botao Adicionar Conteudo igual ao atual.
+- [x] Remover o botao Gerar Quiz Rapido desta versao.
+
+#### Fluxo de criacao do quiz
+##### Base obrigatoria
+**Como usuario, quero seguir pelo fluxo novo do quiz sem etapa intermediaria desnecessaria**
+- [x] Ao clicar em Quiz no menu de conteudo, ir direto para o modal Selecione o tipo de quiz.
+- [x] Nao exibir etapa intermediaria para definir o nome antes desse modal.
 - [x] Inserir o nome do quiz em outro momento, conforme o novo prototipo.
+- [x] No modal Selecione o tipo de quiz, manter Avaliativo habilitado e funcional.
+- [x] No modal Selecione o tipo de quiz, manter Pesquisa desabilitado com a mensagem Em desenvolvimento.
+- [x] No modal Como voce quer criar o quiz?, manter Criacao manual habilitada e funcional.
+- [x] No modal Como voce quer criar o quiz?, manter Usar assistente de IA desabilitado com a mensagem Em desenvolvimento.
 
 ### Botoes e recursos indisponiveis
-#### Fora do escopo desta versao
+#### Sinalizacao de indisponibilidade
 ##### Base obrigatoria
 **Como usuario, quero entender claramente o que ainda nao foi entregue**
 - [x] Todo botao indicado como nao implementado deve ficar desabilitado.
 - [x] Todo botao desabilitado deve exibir a mensagem Em desenvolvimento.
-- [x] Nao incluir recurso de IA nesta primeira entrega.
 
 ### Criacao e edicao de perguntas
 #### Tela da pergunta
 ##### Base obrigatoria
 **Como conteudista, quero editar a pergunta com o visual correto e sem recursos fora do escopo**
 - [x] Atualizar a tela para ficar visualmente mais proxima da referencia original.
-- [x] Remover a imagem de apoio exibida na tela atual.
-  - [Navegar para componente](app://quiz-image)
+- [x] Remover o campo Imagem de Apoio (Opcional) do formulario de perguntas.
+- [x] Manter o restante do formulario igual ao atual.
 - [x] Permitir formatacao no enunciado.
 - [x] Nao permitir inclusao de imagens no enunciado nesta entrega.
 - [x] Manter alternativas textuais simples, sem formatacao.
@@ -72,70 +92,74 @@ const STORY_MAP_MARKDOWN = `## QUIZ V2 - CENTRAL IT
 #### Parametros disponiveis
 ##### Base obrigatoria
 **Como editor, quero manter apenas as configuracoes necessarias para esta entrega**
-- [x] Remover parametros extras apontados nas referencias.
-- [x] Manter apenas a randomizacao da ordem das perguntas que ja existe hoje.
+- [x] Manter o toggle Randomizar Ordem das Perguntas.
   - [Navegar para componente](app://quiz-setting-randomize)
-- [x] Adicionar somente a configuracao de quantidade de perguntas exibidas no quiz.
+- [x] Manter o campo Exibir quantas questoes? para selecionar o total a ser sorteado.
 - [x] Selecionar essa quantidade a partir do total de perguntas cadastradas no quiz.
+- [x] Aceitar apenas valores entre 1 e o total de perguntas cadastradas no quiz.
+- [x] Deixar o campo em branco para exibir todas as perguntas, preservando o comportamento atual.
+- [x] Bloquear salvamento ou publicacao quando a quantidade selecionada for maior do que o total de perguntas.
 
 ##### Fora de escopo
 **Como time de produto, quero deixar claro o que fica para depois**
-- [ ] Nao entregar agora randomizacao avancada.
-- [ ] Nao entregar agora tentativas maximas.
-  - [Navegar para componente](app://quiz-setting-attempts)
-- [ ] Nao entregar agora limite de tempo.
-  - [Navegar para componente](app://quiz-setting-time-limit)
-- [ ] Nao entregar agora feedback imediato ou ao final do quiz.
+- [ ] Remover desta entrega o parametro Randomizar Ordem das Alternativas.
+- [ ] Remover desta entrega o parametro Exibir Feedback Imediato.
   - [Navegar para componente](app://quiz-setting-feedback)
+- [ ] Remover desta entrega o parametro Numero de Tentativas do Quiz.
+  - [Navegar para componente](app://quiz-setting-attempts)
+- [ ] Remover desta entrega o parametro Tempo Maximo (min).
+  - [Navegar para componente](app://quiz-setting-time-limit)
 
-### Banco de questoes
+### Banco global de questoes
 #### Inclusao, remocao e busca
 ##### Intermediaria
 **Como conteudista, quero adicionar, remover e reaproveitar questoes do banco de forma simples**
-- [x] Toda pergunta criada pode ser adicionada ao banco por meio de uma flag booleana.
-- [x] Remover do banco significa tirar do banco, nao apagar a questao dos quizzes vinculados.
-- [x] Implementar remocao com uma flag booleana na tabela questions para indicar disponibilidade no banco.
-- [x] Qualquer usuario com permissao para criar conteudo pode remover do banco, mesmo sem ter criado a questao.
-- [x] Buscar no banco por titulo ou enunciado usando Postgres.
-- [x] Se for simples, incluir busca tambem nas alternativas.
-- [x] Nao enviar nada para Elastic nesta entrega.
-- [x] Permitir selecao acumulada em pesquisas sucessivas.
+- [x] Toda pergunta criada pode ser adicionada ao banco por meio de uma flag booleana `in_question_bank`.
+- [x] A flag pode ser marcada durante a criacao da pergunta ou posteriormente.
+- [x] Remover do banco significa alterar apenas a flag para false, sem apagar a pergunta nem remover vinculos existentes.
+- [x] Qualquer usuario com permissao para criar conteudo pode adicionar ou remover perguntas do banco, independentemente de quem criou a pergunta.
+- [x] Buscar no banco pelo enunciado da pergunta usando Postgres simples.
+- [x] Exibir apenas perguntas com `in_question_bank = true`.
+- [x] Nao usar Elastic nesta entrega.
+- [x] Permitir selecao acumulada em pesquisas sucessivas ate a confirmacao.
   - [Navegar para componente](app://quiz-question-bank)
+- [ ] Se for simples, incluir busca tambem nas alternativas como melhoria nao obrigatoria.
 
 ### Importacao por planilha
 #### Fluxo e restricoes
 ##### Golden plate
-**Como admin, quero importar varias questoes com preview e conferencia antes de salvar**
-- [x] Seguir o modelo de planilha mostrado na referencia.
-- [x] Nao usar modelo com alternativas em colunas fixas.
-- [x] Fazer upload e preview no front antes de salvar qualquer dado.
-- [x] Permitir que o admin escolha quais questoes farao parte do banco.
-- [x] Adicionar acao para selecionar todas ou adicionar todas ao banco.
-- [x] Bloquear importacao quando houver ao menos 1 questao ja cadastrada no formulario atual.
-- [x] Permitir apenas 1 processo de importacao por formulario carregado.
-- [x] Depois de importar, ainda permitir criar novas perguntas manualmente.
+**Como admin, quero importar varias questoes com revisao no front antes de salvar**
+- [x] Restringir a importacao por planilha ao perfil admin.
+- [x] Bloquear o botao de importacao quando houver ao menos 1 questao ja carregada no formulario atual.
+- [x] Fazer upload e validacao do arquivo inteiro antes de qualquer salvamento.
+- [x] Exibir o lote em tela para revisao quando a planilha for valida.
+- [x] Permitir que o admin escolha individualmente quais questoes do lote vao para o banco global.
+- [x] Adicionar acao para selecionar todas as questoes do lote para o banco global.
+- [x] Confirmar o lote antes de persistir as perguntas com as flags escolhidas.
+- [x] Permitir limpar o formulario antes da confirmacao final.
+- [x] Depois de importar com sucesso, ainda permitir criar novas perguntas manualmente no mesmo quiz.
+
+#### Modelo da planilha
+##### Golden plate
+**Como admin, quero seguir um modelo simples de importacao**
+- [x] Utilizar as colunas ID, ENUNCIADO, ALTERNATIVA e CORRETA.
+- [x] Tratar ID como obrigatorio.
+- [x] Tratar ALTERNATIVA como obrigatoria.
+- [x] Tratar CORRETA como obrigatoria, aceitando Sim ou Nao.
+- [x] Permitir ENUNCIADO ausente quando houver ID, cadastrando a pergunta assim mesmo.
 
 ### Validacoes da importacao
 #### Regras obrigatorias
 ##### Golden plate
 **Como admin, quero receber erros claros e evitar cadastro parcial**
-- [x] Se faltar o enunciado, mas o ID estiver preenchido, cadastrar sem erro usando o ID como chave.
-- [x] Se faltar o ID, gerar erro informando que o ID e obrigatorio.
-- [x] Se faltar a marcacao de correta ou nao correta, gerar erro obrigatorio.
-- [x] Se faltar alternativas, nao cadastrar e informar inconsistencia de preenchimento.
-- [x] Tirando o caso aceito do ID sem enunciado, qualquer erro invalida a importacao inteira.
+- [x] Se faltar ENUNCIADO, mas o ID estiver preenchido, cadastrar sem erro usando o ID como chave da pergunta.
+- [x] Se faltar ID, gerar erro informando que o ID e obrigatorio.
+- [x] Se faltar a marcacao de CORRETA em alguma alternativa, gerar erro obrigatorio.
+- [x] Se faltar ALTERNATIVA com os demais campos preenchidos, gerar erro de inconsistencia de preenchimento.
+- [x] Se houver ao menos 1 erro no lote, invalidar a importacao inteira.
 - [x] Nao permitir cadastro parcial.
-- [x] Apresentar em tela a lista de erros para o admin.
-
-### Fora de escopo
-#### Nao entregar agora
-##### Fora de escopo
-**Como time de produto, quero registrar explicitamente o que nao entra na versao curta**
-- [ ] Nao incluir geracao de quizzes por IA a partir de transcricao.
-- [ ] Nao incluir search semantico com tags e Elastic.
-- [ ] Nao incluir novo tipo de quiz de pesquisa.
-- [ ] Nao incluir feedback com resposta da pergunta, alternativa correta e resposta textual.
-- [ ] Nao incluir imagens nas perguntas nesta entrega.
+- [x] Exibir os erros em portugues, detalhados por linha ou pergunta afetada.
+- [x] Invalidar o lote temporario apos o salvamento para evitar duplo processamento.
 `;
 
 @Component({
