@@ -114,12 +114,12 @@ const STORY_MAP_MARKDOWN = `## QUIZ V2 - CENTRAL IT
 #### Inclusao, remocao e busca
 ##### Intermediaria
 **Como conteudista, quero adicionar, remover e reaproveitar questoes do banco de forma simples**
-- [x] Toda pergunta criada pode ser adicionada ao banco por meio de uma flag booleana `in_question_bank`.
+- [x] Toda pergunta criada pode ser adicionada ao banco por meio de uma flag booleana \u0060in_question_bank\u0060.
 - [x] A flag pode ser marcada durante a criacao da pergunta ou posteriormente.
 - [x] Remover do banco significa alterar apenas a flag para false, sem apagar a pergunta nem remover vinculos existentes.
 - [x] Qualquer usuario com permissao para criar conteudo pode adicionar ou remover perguntas do banco, independentemente de quem criou a pergunta.
 - [x] Buscar no banco pelo enunciado da pergunta usando Postgres simples.
-- [x] Exibir apenas perguntas com `in_question_bank = true`.
+- [x] Exibir apenas perguntas com \u0060in_question_bank = true\u0060.
 - [x] Nao usar Elastic nesta entrega.
 - [x] Permitir selecao acumulada em pesquisas sucessivas ate a confirmacao.
   - [Navegar para componente](app://quiz-question-bank)

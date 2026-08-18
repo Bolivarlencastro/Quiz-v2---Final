@@ -17,11 +17,11 @@
         <p class="selection-card-text">Para validar conhecimento com resposta correta.</p>
       </div>
 
-      <div 
+      <div
         id="quiz-survey-type"
-        class="selection-card selection-card-disabled"
+        (click)="typeSelected.emit('survey')"
+        class="selection-card"
         [class.highlight-feature]="isHighlighting()">
-        <span class="selection-card-pill">Em breve</span>
         <span class="material-symbols-outlined selection-card-icon">poll</span>
         <h3 class="selection-card-title">Pesquisa</h3>
         <p class="selection-card-text">Para coletar opinioes sem resposta correta.</p>
