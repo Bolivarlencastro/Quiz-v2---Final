@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { Course, Topic, ContentItem, ContentType, Pulse, QuizQuestion } from '../../types';
 import { CreationWizardComponent } from '../creation-wizard/creation-wizard.component';
 import { QuizCreationMethodModalComponent } from '../modals/quiz-creation-method-modal.component';
-import { QuizAiAssistantModalComponent } from '../modals/quiz-ai-assistant-modal.component';
+import { QuizAiAssistantModalComponent, CONTENT_PROCESSING_DURATION_MS } from '../modals/quiz-ai-assistant-modal.component';
 import { QuizBuilderModalComponent } from '../modals/quiz-builder-modal.component';
 import { EMPTY_PULSE } from '../../mock-data';
 import { QuizPlayerComponent } from '../quiz-player/quiz-player.component';
@@ -19,6 +19,43 @@ import { QuizTypeSelectModalComponent } from '../modals/quiz-type-select-modal.c
 import { QuizNameModalComponent } from '../modals/quiz-name-modal.component';
 import { AddQuestionModalComponent } from '../modals/add-question-modal.component';
 import { ContentCreationDialogComponent } from '../modals/content-creation-dialog.component';
+
+// Cenários mockados injetáveis via o debug FAB, para validar corner/edge cases
+// do fluxo de Quiz com IA sem precisar montar cada cenário manualmente.
+// `ALREADY_PROCESSED_OFFSET_MS` garante que o conteúdo injetado já nasça elegível.
+const ALREADY_PROCESSED_OFFSET_MS = CONTENT_PROCESSING_DURATION_MS + 1000;
+const ALL_CONTENT_TYPES: ContentType[] = ['video', 'audio', 'image', 'document', 'web', 'scorm'];
+
+const CONTENT_DEBUG_SCENARIOS: Record<string, () => Omit<ContentItem, 'id'>[]> = {
+  injectManyContents: () => {
+    const now = Date.now();
+    return Array.from({ length: 20 }, (_, i) => ({
+      type: ALL_CONTENT_TYPES[i % ALL_CONTENT_TYPES.length],
+      title: `Conteúdo de teste ${i + 1}`,
+      description: '',
+      source: '',
+      // ~70% já processado, o restante ainda em processamento.
+      createdAt: i % 10 < 7 ? now - ALREADY_PROCESSED_OFFSET_MS : now,
+    }));
+  },
+  injectLongTitle: () => ([{
+    type: 'document',
+    title: 'Este é um título de conteúdo propositalmente muito longo, criado para validar como a lista de seleção do assistente de IA trata truncamento, quebra de linha e overflow de texto em telas de diferentes larguras',
+    description: '',
+    source: '',
+    createdAt: Date.now() - ALREADY_PROCESSED_OFFSET_MS,
+  }]),
+  injectAllTypes: () => {
+    const now = Date.now();
+    return ALL_CONTENT_TYPES.map(type => ({
+      type,
+      title: `Conteúdo do tipo "${type}"`,
+      description: '',
+      source: '',
+      createdAt: now - ALREADY_PROCESSED_OFFSET_MS,
+    }));
+  },
+};
 
 @Component({
   selector: 'app-course-wizard',
@@ -95,6 +132,61 @@ export class CourseWizardComponent {
   editingQuizContent = signal<ContentItem | null>(null);
   editingQuestion = signal<QuizQuestion | null>(null);
   highlightTarget = signal<string | null>(null);
+
+  // --- Debugger (corner/edge cases) ---
+  isDebugMenuOpen = signal(false);
+  debugOptions = signal<Record<string, boolean>>({});
+  debugMenuOptions = {
+    scenarios: [
+      { key: 'injectManyContents', label: 'Simular muitos conteúdos (20, tipos e status variados)' },
+      { key: 'injectLongTitle', label: 'Simular conteúdo com título muito longo' },
+      { key: 'injectAllTypes', label: 'Simular um conteúdo de cada tipo' },
+    ],
+    quiz: [
+      { key: 'aiQuizSimulateFailure', label: 'Simular falha na geração do Quiz com IA' },
+      { key: 'aiQuizForceAllEligible', label: 'Forçar todos os conteúdos como elegíveis' },
+      { key: 'aiQuizForceAllError', label: 'Forçar todos os conteúdos com erro de processamento' },
+      { key: 'aiQuizLoseEligibilityOnRefresh', label: 'Simular conteúdo perdendo elegibilidade ao atualizar' },
+    ],
+  };
+
+  toggleDebugMenu(): void {
+    this.isDebugMenuOpen.update(v => !v);
+  }
+
+  toggleDebugOption(optionKey: string, event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.debugOptions.update(options => ({ ...options, [optionKey]: isChecked }));
+
+    if (CONTENT_DEBUG_SCENARIOS[optionKey]) {
+      this.applyContentDebugScenario(optionKey, isChecked);
+    }
+  }
+
+  // Injeta (ou remove) um lote de conteúdos mockados no primeiro tópico do curso,
+  // identificado por um prefixo de id próprio, para não colidir com conteúdo real.
+  private applyContentDebugScenario(scenarioKey: string, enabled: boolean): void {
+    const idPrefix = `debug_${scenarioKey}_`;
+    this.course.update(c => {
+      const topicId = c.topics[0]?.id;
+      if (!topicId) return c;
+      const newTopics = c.topics.map(topic => {
+        if (topic.id !== topicId) return topic;
+        const withoutScenario = topic.contents.filter(item => !item.id.startsWith(idPrefix));
+        const nextContents = enabled
+          ? [
+              ...withoutScenario,
+              ...CONTENT_DEBUG_SCENARIOS[scenarioKey]().map((item, index) => ({
+                ...item,
+                id: `${idPrefix}${index}`,
+              })),
+            ]
+          : withoutScenario;
+        return { ...topic, contents: nextContents };
+      });
+      return { ...c, topics: newTopics };
+    });
+  }
 
 
   // --- Quiz Preview State ---
@@ -326,6 +418,7 @@ export class CourseWizardComponent {
       title: `Novo ${contentTypeName}`,
       description: '',
       source: '',
+      createdAt: Date.now(),
     };
     
     this.course.update(c => {
@@ -394,6 +487,7 @@ export class CourseWizardComponent {
       const duplicatedContent: ContentItem = JSON.parse(JSON.stringify(originalContent));
       duplicatedContent.id = `content_${Date.now()}`;
       duplicatedContent.title = `${originalContent.title} (Cópia)`;
+      duplicatedContent.createdAt = Date.now();
       if (duplicatedContent.quizData && duplicatedContent.quizData.questions) {
         duplicatedContent.quizData.questions.forEach((q: QuizQuestion) => {
           q.id = `q_${Date.now()}_${Math.random()}`;
@@ -643,6 +737,7 @@ export class CourseWizardComponent {
             type: 'quiz',
             name: `Quiz sobre: ${topic.title}`,
             description: `Este quiz foi gerado por IA sobre o conteúdo do tópico.`,
+            generatedByAi: true,
             questions: quizJson.questions.map((q: any) => ({
                 id: `q_${Date.now()}_${Math.random().toString(36).substring(2)}`,
                 questionType: 'multipleChoice',

@@ -3,6 +3,12 @@
     <div class="quiz-editor-shell">
       <header class="quiz-editor-header">
         <span class="quiz-editor-title">Editar Quiz</span>
+        @if (quiz().generatedByAi) {
+          <span class="quiz-editor-ai-badge">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            Gerado por IA
+          </span>
+        }
       </header>
 
       <p class="quiz-editor-description">

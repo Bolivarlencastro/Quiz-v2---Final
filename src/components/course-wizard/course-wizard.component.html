@@ -389,6 +389,51 @@
   }
 </app-creation-wizard>
 
+<!-- DEBUGGER FAB & MENU (corner/edge cases, falhas, mensagens) -->
+<div class="fixed bottom-6 right-6 z-40">
+  <div class="relative">
+    <button (click)="toggleDebugMenu()" class="w-14 h-14 flex items-center justify-center bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-900 transition-all duration-200 transform hover:scale-110 opacity-0 hover:opacity-100">
+      <span class="material-symbols-outlined transition-transform duration-300" [class.rotate-45]="isDebugMenuOpen()">science</span>
+    </button>
+
+    @if (isDebugMenuOpen()) {
+      <div (click)="$event.stopPropagation()" class="absolute bottom-full right-0 mb-4 w-80 bg-white dark:bg-gray-700 rounded-lg shadow-2xl p-4 border dark:border-gray-600 animate-fade-in-up">
+        <div class="flex justify-between items-center mb-2">
+          <h4 class="font-bold text-gray-800 dark:text-gray-200">Debug: Conteúdos (cenários)</h4>
+        </div>
+        <div class="space-y-1">
+          @for (option of debugMenuOptions.scenarios; track option.key) {
+            <label class="flex items-center gap-3 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm">
+              <input type="checkbox"
+                    [checked]="debugOptions()[option.key]"
+                    (change)="toggleDebugOption(option.key, $event)"
+                    class="h-4 w-4 rounded border-gray-300 dark:border-gray-500 dark:bg-gray-600 text-indigo-600 focus:ring-indigo-500 shrink-0 cursor-pointer">
+              <span class="text-gray-700 dark:text-gray-300 select-none">{{ option.label }}</span>
+            </label>
+          }
+        </div>
+        <div class="border-t dark:border-gray-600 my-2"></div>
+        <div class="flex justify-between items-center mb-2">
+          <h4 class="font-bold text-gray-800 dark:text-gray-200">Debug: Quiz com IA</h4>
+        </div>
+        <div class="space-y-1">
+          @for (option of debugMenuOptions.quiz; track option.key) {
+            <label class="flex items-center gap-3 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm">
+              <input type="checkbox"
+                    [checked]="debugOptions()[option.key]"
+                    (change)="toggleDebugOption(option.key, $event)"
+                    class="h-4 w-4 rounded border-gray-300 dark:border-gray-500 dark:bg-gray-600 text-indigo-600 focus:ring-indigo-500 shrink-0 cursor-pointer">
+              <span class="text-gray-700 dark:text-gray-300 select-none">{{ option.label }}</span>
+            </label>
+          }
+        </div>
+      </div>
+      <!-- Backdrop -->
+      <div class="fixed inset-0 z-[-1]" (click)="isDebugMenuOpen.set(false)"></div>
+    }
+  </div>
+</div>
+
 <!-- Image Upload Modal -->
 @if(showImageUploadModal() && imageTarget(); as target) {
   <app-image-upload-modal 
@@ -484,6 +529,10 @@
   @case ('ai') {
     <app-quiz-ai-assistant-modal
       [contextContent]="contentForAiQuiz()"
+      [simulateFailure]="debugOptions()['aiQuizSimulateFailure'] ?? false"
+      [forceAllEligible]="debugOptions()['aiQuizForceAllEligible'] ?? false"
+      [forceAllError]="debugOptions()['aiQuizForceAllError'] ?? false"
+      [loseEligibilityOnRefresh]="debugOptions()['aiQuizLoseEligibilityOnRefresh'] ?? false"
       (close)="closeQuizModals()"
       (back)="backFromAiQuiz()"
       (quizGenerated)="handleAiQuizGenerated($event)"

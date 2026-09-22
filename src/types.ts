@@ -44,6 +44,9 @@ export interface ContentItem {
   description: string;
   source: string; // URL, file path, etc.
   quizData?: Pulse;
+  // Timestamp used to simulate the async transcript/processing step a content
+  // goes through before it becomes eligible for AI quiz generation.
+  createdAt?: number;
 }
 
 export type PulseType = 'file' | 'link' | 'quiz' | 'text';
@@ -76,6 +79,8 @@ export interface Pulse {
   coverImageUrl: string | null;
   status?: 'draft' | 'published';
   quizType?: 'evaluative' | 'survey';
+  // Marca quizzes originados do assistente de IA, para exibir indicação ao revisar.
+  generatedByAi?: boolean;
   // For file type
   fileName?: string;
   // For link type
